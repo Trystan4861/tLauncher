@@ -1,21 +1,21 @@
-from PyQt5.QtCore import Qt, QPoint
+import subprocess
+from PyQt5.QtCore import Qt, QPoint, QTimer  # Importar QTimer
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLineEdit, QApplication
-from PyQt5.QtGui import QPainter, QBrush, QColor, QIcon
+from PyQt5.QtGui import QPainter, QBrush, QColor, QIcon, QCursor
 from dropdown import Dropdown
+from tray import TrayIcon  # Importar TrayIcon
 
 class TranslucentWidget(QWidget):
     def __init__(self):
         super().__init__()
         self.initUI()
+        self.trayIcon = TrayIcon(self)  # Crear instancia de TrayIcon
         QApplication.instance().focusChanged.connect(self.onFocusChanged)
 
     def initUI(self):
-        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
+        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.Tool)
         self.setAttribute(Qt.WA_TranslucentBackground, True)
         self.resize(450, 120)
-
-        # Estilo directo para asegurar la transparencia
-        #self.setStyleSheet("background-color: rgba(30, 30, 30, 180); border-radius: 0px;")
 
         layout = QVBoxLayout()
 
@@ -37,6 +37,20 @@ class TranslucentWidget(QWidget):
         layout.setContentsMargins(10, 0, 10, 10)
 
         self.setLayout(layout)
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Escape:
+            self.hide()
+        elif event.key() == Qt.Key_Return or event.key() == Qt.Key_Enter:
+            self.doIt()
+        elif event.key() in (Qt.Key_Up, Qt.Key_Down):
+            if self.dropdown.isVisible():
+                if event.key() == Qt.Key_Up:
+                    self.dropdown.navigateSelection('up')
+                elif event.key() == Qt.Key_Down:
+                    self.dropdown.navigateSelection('down')
+        else:
+            super().keyPressEvent(event)  # Manejar otros eventos normalmente
 
     def addDropdownItem(self):
         index = len(self.dropdown.items) + 1
@@ -60,20 +74,26 @@ class TranslucentWidget(QWidget):
     def onFocusChanged(self, old, new):
         # Evitar cierre si el nuevo foco está en el desplegable
         if not self.isAncestorOf(new) and new != self and not self.dropdown.isAncestorOf(new):
-            self.close()
+            self.hide()
 
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Escape:
-            self.close()
-        else:
-            super().keyPressEvent(event)
+    def doIt(self):
+        text = self.textBox.text()
+        if text:
+            if text.lower() == "exit":
+                QApplication.instance().quit()
+            else:
+                try:
+                    subprocess.Popen(text,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,stdin=subprocess.DEVNULL,start_new_session=True)
+                except Exception as e:
+                    print(f"Error al ejecutar '{text}': {e}")
+                self.textBox.clear()
 
     def showEvent(self, event):
         super().showEvent(event)
         self.textBox.setFocus()
 
         screen = QApplication.primaryScreen()
-        if screen:
+        if (screen):
             geometry = screen.availableGeometry()
             self.move(
                 geometry.left() + (geometry.width() - self.width()) // 2,
@@ -89,3 +109,14 @@ class TranslucentWidget(QWidget):
         painter.setBrush(brush)
         painter.setPen(Qt.NoPen)
         painter.drawRoundedRect(rect, 15, 15)
+
+    def showWidget(self):
+        """Función para mostrar el widget y enfocar el input."""
+        print("Debug: showWidget ejecutado")  # Mensaje de debug
+        self.show()
+        self.activateWindow()  # Obligar a que el widget tenga el foco
+        #QTimer.singleShot(500, lambda: self.textBox.setFocus())  # Pasar el foco al input después de 500ms
+
+    def hideWidget(self):
+        """Función para ocultar el widget."""
+        self.hide()

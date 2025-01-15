@@ -1,5 +1,24 @@
 # Changelog
 
+## v1.1.10
+- Migrada la lógica del `trayIcon` y el menú contextual a un nuevo archivo `tray.py`.
+
+## v1.1.9
+- Corregido el error de `QCursor` no definido en `widget.py`.
+
+## v1.1.8
+- Modificado `main.py` para usar `widget.showWidget()` y asegurar que el input reciba el foco incluso en la primera vez que se muestra la primera instancia.
+
+## v1.1.7
+- Reemplazadas todas las llamadas a `self.show()` por `self.showWidget()`.
+
+## v1.1.6
+- Añadidas funciones `showWidget` y `hideWidget` para mostrar y ocultar el widget, asegurando que el input reciba el foco al mostrar el widget.
+
+## v1.1.5
+- Añadido icono en la barra de notificaciones
+- Modificación del comportamiento para permitir sólo una instancia del programa en todo momento
+
 ## v1.1.4
 - Corrección de estilos y tamaños en el desplegable:
   - Eliminación de la barra horizontal.

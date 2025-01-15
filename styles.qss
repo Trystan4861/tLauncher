@@ -52,3 +52,19 @@ QLabel {
     padding: 5px;
     width: 400px;
 }
+
+/* Estilo del menú contextual del trayicon */
+QMenu {
+    background-color: #333333; /* Fondo del menú */
+    color: #ffffff; /* Color del texto */
+    border: 1px solid #444444; /* Borde del menú */
+}
+
+QMenu::item {
+    padding: 5px 25px; /* Espaciado del ítem */
+    background-color: transparent; /* Fondo transparente */
+}
+
+QMenu::item:selected {
+    background-color: #555555; /* Fondo del ítem seleccionado */
+}

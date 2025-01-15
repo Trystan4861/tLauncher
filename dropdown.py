@@ -75,6 +75,39 @@ class Dropdown(QWidget):
         self.updateSize()
         if len(self.items) == 1:
             self.updateSelection(0)
+    def navigateSelection(self, direction):
+        """
+        Cambia la selección actual hacia arriba o hacia abajo en función de la dirección.
+        :param direction: 'up' para mover hacia arriba, 'down' para mover hacia abajo.
+        """
+        if direction == 'up' and self.selected_index > 0:
+            self.selected_index -= 1
+            self.updateSelection(self.selected_index)
+            self.ensureVisible(self.selected_index)
+        elif direction == 'down' and self.selected_index < len(self.items) - 1:
+            self.selected_index += 1
+            self.updateSelection(self.selected_index)
+            self.ensureVisible(self.selected_index)
+
+    def ensureVisible(self, index):
+        """
+        Asegura que el elemento en el índice dado sea visible desplazando el scroll si es necesario.
+        :param index: Índice del elemento a hacer visible.
+        """
+        if 0 <= index < len(self.items):
+            item_widget = self.items[index]
+            # Calcula la posición relativa del elemento
+            y_position = item_widget.y()
+            if y_position < self.scroll_area.verticalScrollBar().value():
+                # El elemento está por encima del área visible, desplaza hacia arriba
+                self.scroll_area.verticalScrollBar().setValue(y_position)
+            elif y_position + item_widget.height() > (
+                self.scroll_area.verticalScrollBar().value() + self.scroll_area.height()
+            ):
+                # El elemento está por debajo del área visible, desplaza hacia abajo
+                self.scroll_area.verticalScrollBar().setValue(
+                    y_position + item_widget.height() - self.scroll_area.height()
+                )
 
     def clear(self):
         for item_widget in self.items:
