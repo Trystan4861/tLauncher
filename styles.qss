@@ -1,0 +1,54 @@
+/* Estilo general para widgets */
+QWidget {
+    border-radius: 15px; /* Redondeo en los bordes */
+    background-color: rgba(0, 0, 0,200); /* Fondo */
+}
+
+/* Estilo para el cuadro de texto */
+QLineEdit {
+    margin: 10px;
+    font-size: 16px;
+    background-color: rgba(30, 30, 30, 200); /* Fondo gris */
+    color: white;           /* Texto blanco */
+    padding: 10px;
+    border: none;
+    border-radius: 0px;
+}
+
+
+/* Estilo para el botón de configuración */
+QPushButton {
+    border: none;
+}
+
+QPushButton:hover {
+    background-color: lightgray; /* Fondo gris claro */
+}
+
+/* Estilo para el desplegable */
+QScrollArea {
+    border: none;
+    background-color: dimgray; /* Fondo gris oscuro */
+    width: 400px;
+}
+
+QScrollBar:vertical {
+    border: none;
+    background: gray; /* Fondo gris */
+    width: 8px;
+}
+
+QScrollBar::handle:vertical {
+    background: darkgray; /* Fondo gris oscuro */
+    min-height: 20px;
+    border-radius: 4px;
+}
+
+/* Estilo para los elementos del desplegable */
+QLabel {
+    background-color: blue; /* Fondo azul */
+    color: white;           /* Texto blanco */
+    border: none;
+    padding: 5px;
+    width: 400px;
+}

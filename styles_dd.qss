@@ -1,0 +1,37 @@
+/* Estilo general para el widget desplegable */
+QWidget {
+    background-color: rgba(30, 30, 30, 255); /* Fondo general */
+    border-radius: 0px 0px 10px 10px; /* Bordes redondeados solo en la parte inferior */
+    padding: 5px;
+}
+
+/* Estilo para el área de scroll */
+QScrollArea {
+    border: none;
+    background: rgba(30, 30, 30, 255); /* Fondo igual que el widget desplegable */
+}
+
+QScrollBar:vertical {
+    border: none;
+    background: rgba(60, 60, 60, 255); /* Fondo de la barra de desplazamiento */
+    width: 8px;
+}
+
+QScrollBar::handle:vertical {
+    background: rgba(127, 127, 127, 255); /* Color de la barra desplazable */
+    min-height: 20px;
+    border-radius: 4px;
+}
+
+QLabel {
+    background-color: rgba(30, 30, 30, 255);
+    color: white;
+    padding: 5px;
+    border: none;
+}
+
+QLabel[selected="true"] {
+    background-color: rgba(127, 127, 127, 255);
+    color: black;
+}
+
