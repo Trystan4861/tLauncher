@@ -1,5 +1,8 @@
 # Changelog
 
+## v1.1.16
+- Actualizar configuración para reflejar cambios en la funcionalidad de la aplicación sin reiniciar.
+
 ## v1.1.15
 - Modificado el comportamiento para ocultar la aplicación en lugar de cerrarla al abrir una URL.
 - Revisado `notification.py` para asegurarse de que no propague el cierre a la aplicación principal.

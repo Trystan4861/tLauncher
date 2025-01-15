@@ -2,7 +2,7 @@
     Nombre: tLauncher
     Descripción: Aplicación que permite ejecutar comandos de forma rápida y sencilla.
     Autor: @trystan4861
-    version: 1.1.15
+    version: 1.1.16
 '''
 from PyQt5.QtWidgets import QApplication
 from widget import TranslucentWidget

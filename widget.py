@@ -1,6 +1,7 @@
 import subprocess
 import json
 import os
+import configparser
 from PyQt5.QtCore import Qt, QPoint, QTimer
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLineEdit, QApplication
 from PyQt5.QtGui import QPainter, QBrush, QColor, QIcon, QCursor
@@ -15,9 +16,33 @@ class TranslucentWidget(QWidget):
         super().__init__()
         self.initUI()
         self.trayIcon = TrayIcon(self)
-        self.go_module = GoModule(self)
+        self.config = configparser.ConfigParser()
+        self.loadConfig()
+        self.go_enabled = self.config.getboolean("go", "enabled")
+        self.go_module = GoModule(self) if self.go_enabled else None
         self.settingsWindow = SettingsWindow(self)
         QApplication.instance().focusChanged.connect(self.onFocusChanged)
+
+    def loadConfig(self):
+        if not os.path.exists("config.ini"):
+            self.createDefaultConfig()
+        self.config.read("config.ini")
+        if "go" not in self.config:
+            self.config.add_section("go")
+        if "enabled" not in self.config["go"]:
+            self.config["go"]["enabled"] = "false"
+        with open("config.ini", "w") as configfile:
+            self.config.write(configfile)
+
+    def createDefaultConfig(self):
+        self.config.add_section("go")
+        self.config["go"]["enabled"] = "false"
+        with open("config.ini", "w") as configfile:
+            self.config.write(configfile)
+
+    def updateGoModule(self, enabled):
+        self.go_enabled = enabled
+        self.go_module = GoModule(self) if self.go_enabled else None
 
     def initUI(self):
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.Tool)
@@ -68,7 +93,7 @@ class TranslucentWidget(QWidget):
     def onTextChanged(self, text):
         pos = self.textBox.mapToGlobal(QPoint(0, self.textBox.height()))
         if text:
-            if text.lower().startswith("go "):
+            if text.lower().startswith("go ") and self.go_enabled:
                 command = text[3:]
                 result = self.go_module.handleGoCommand(command)
                 if result:
@@ -99,7 +124,7 @@ class TranslucentWidget(QWidget):
         if text:
             if text.lower() == "exit":
                 QApplication.instance().quit()
-            elif text.lower().startswith("go "):
+            elif text.lower().startswith("go ") and self.go_enabled:
                 alias = text[3:] if text[3:] else self.getSelectedAlias()
                 self.go_module.executeGoCommand(alias)
             else:
