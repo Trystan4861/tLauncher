@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.1.15
+- Modificado el comportamiento para ocultar la aplicación en lugar de cerrarla al abrir una URL.
+- Revisado `notification.py` para asegurarse de que no propague el cierre a la aplicación principal.
+
 ## v1.1.14
 - Extraída la funcionalidad del módulo "go" a un archivo aparte `go.py`.
 

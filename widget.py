@@ -8,6 +8,7 @@ from dropdown import Dropdown
 from tray import TrayIcon
 from notification import Notification
 from go import GoModule
+from settings import SettingsWindow
 
 class TranslucentWidget(QWidget):
     def __init__(self):
@@ -15,6 +16,7 @@ class TranslucentWidget(QWidget):
         self.initUI()
         self.trayIcon = TrayIcon(self)
         self.go_module = GoModule(self)
+        self.settingsWindow = SettingsWindow(self)
         QApplication.instance().focusChanged.connect(self.onFocusChanged)
 
     def initUI(self):
@@ -27,7 +29,7 @@ class TranslucentWidget(QWidget):
         self.settingsButton = QPushButton(self)
         self.settingsButton.setIcon(QIcon("settings-icon.png"))
         self.settingsButton.setFixedSize(40, 40)
-        self.settingsButton.clicked.connect(self.addDropdownItem)
+        self.settingsButton.clicked.connect(self.showSettings)
 
         self.textBox = QLineEdit(self)
         self.textBox.setPlaceholderText("Escribe aquí...")
@@ -147,3 +149,6 @@ class TranslucentWidget(QWidget):
         self.hide()
         if self.dropdown.isVisible():
             self.dropdown.hideDropdown()
+
+    def showSettings(self):
+        self.settingsWindow.show()
