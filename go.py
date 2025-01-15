@@ -53,6 +53,7 @@ class GoModule:
                 webbrowser.open(url, new=0, autoraise=True)
                 notification = Notification(f"Abriendo {url}", 3000, self.parent)
                 notification.showNotification()
+                self.parent.hideWidget()
             except Exception as e:
                 print(f"Error al abrir '{url}': {e}")
         else:
@@ -64,6 +65,7 @@ class GoModule:
                     webbrowser.open(url, new=0, autoraise=True)
                     notification = Notification(f"Abriendo {url}", 3000, self.parent)
                     notification.showNotification()
+                    self.parent.hideWidget()
                 except Exception as e:
                     print(f"Error al abrir '{url}': {e}")
             else:

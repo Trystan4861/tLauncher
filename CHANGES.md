@@ -1,10 +1,13 @@
 # Changelog
 
+## v1.1.14
+- Extraída la funcionalidad del módulo "go" a un archivo aparte `go.py`.
+
 ## v1.1.13
-- Mejoras en el módulo go para usar el alias del elemento seleccionado en el desplegable si el alias no existe.
+- Mejoras en el módulo `go` para usar el alias del elemento seleccionado en el desplegable si el alias no existe.
 
 ## v1.1.12
-- Añadidas instrucciones de compilación al archivo README.md.
+- Añadidas instrucciones de compilación al archivo `README.md`.
 
 ## v1.1.11
 - Solucionado el problema de que el input no recibía el foco automáticamente al mostrar el widget.

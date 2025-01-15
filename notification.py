@@ -16,7 +16,7 @@ class Notification(QWidget):
         layout.addWidget(self.label)
         self.setLayout(layout)
 
-        QTimer.singleShot(timeout, self.close)
+        QTimer.singleShot(timeout, self.closeNotification)
 
     def loadStyles(self):
         try:
@@ -31,6 +31,10 @@ class Notification(QWidget):
             parent_rect = self.parent().rect()
             self.move(self.parent().mapToGlobal(parent_rect.center()) - self.rect().center())
         self.show()
+
+    def closeNotification(self):
+        self.hide()
+        self.deleteLater()
 
 if __name__ == "__main__":
     import sys
