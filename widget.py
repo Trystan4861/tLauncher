@@ -1,15 +1,15 @@
 import subprocess
-from PyQt5.QtCore import Qt, QPoint, QTimer  # Importar QTimer
+from PyQt5.QtCore import Qt, QPoint, QTimer
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLineEdit, QApplication
 from PyQt5.QtGui import QPainter, QBrush, QColor, QIcon, QCursor
 from dropdown import Dropdown
-from tray import TrayIcon  # Importar TrayIcon
+from tray import TrayIcon
 
 class TranslucentWidget(QWidget):
     def __init__(self):
         super().__init__()
         self.initUI()
-        self.trayIcon = TrayIcon(self)  # Crear instancia de TrayIcon
+        self.trayIcon = TrayIcon(self)
         QApplication.instance().focusChanged.connect(self.onFocusChanged)
 
     def initUI(self):
@@ -50,7 +50,7 @@ class TranslucentWidget(QWidget):
                 elif event.key() == Qt.Key_Down:
                     self.dropdown.navigateSelection('down')
         else:
-            super().keyPressEvent(event)  # Manejar otros eventos normalmente
+            super().keyPressEvent(event)
 
     def addDropdownItem(self):
         index = len(self.dropdown.items) + 1
@@ -65,14 +65,13 @@ class TranslucentWidget(QWidget):
                 self.dropdown.addItem(f"Ejecutar {text}")
             else:
                 self.dropdown.updateItem(0, f"Ejecutar {text}")
-            if not self.dropdown.isVisible():  # Verifica si el desplegable no está visible
+            if not self.dropdown.isVisible():
                 self.dropdown.showDropdown(pos)
             self.textBox.setFocus()
         else:
             self.dropdown.hideDropdown()
 
     def onFocusChanged(self, old, new):
-        # Evitar cierre si el nuevo foco está en el desplegable
         if not self.isAncestorOf(new) and new != self and not self.dropdown.isAncestorOf(new):
             self.hide()
 
@@ -100,22 +99,20 @@ class TranslucentWidget(QWidget):
                 geometry.top() + (geometry.height() - self.height()) // 2
             )
     def paintEvent(self, event):
-        # Crear bordes redondeados y fondo translúcido
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
         rect = self.rect()
         
-        brush = QBrush(QColor(50, 50, 50, 200))  # Fondo translúcido
+        brush = QBrush(QColor(50, 50, 50, 200))
         painter.setBrush(brush)
         painter.setPen(Qt.NoPen)
         painter.drawRoundedRect(rect, 15, 15)
 
     def showWidget(self):
         """Función para mostrar el widget y enfocar el input."""
-        print("Debug: showWidget ejecutado")  # Mensaje de debug
         self.show()
-        self.activateWindow()  # Obligar a que el widget tenga el foco
-        #QTimer.singleShot(500, lambda: self.textBox.setFocus())  # Pasar el foco al input después de 500ms
+        self.activateWindow()
+        QTimer.singleShot(500, lambda: self.textBox.setFocus())
 
     def hideWidget(self):
         """Función para ocultar el widget."""

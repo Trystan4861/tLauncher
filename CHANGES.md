@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.1.12
+- Añadidas instrucciones de compilación al archivo README.md.
+
+## v1.1.11
+- Solucionado el problema de que el input no recibía el foco automáticamente al mostrar el widget.
+
 ## v1.1.10
 - Migrada la lógica del `trayIcon` y el menú contextual a un nuevo archivo `tray.py`.
 
