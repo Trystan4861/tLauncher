@@ -7,14 +7,15 @@ from PyQt5.QtGui import QPainter, QBrush, QColor, QIcon, QCursor
 from dropdown import Dropdown
 from tray import TrayIcon
 from notification import Notification
+from go import GoModule
 
 class TranslucentWidget(QWidget):
     def __init__(self):
         super().__init__()
         self.initUI()
         self.trayIcon = TrayIcon(self)
+        self.go_module = GoModule(self)
         QApplication.instance().focusChanged.connect(self.onFocusChanged)
-        self.go_data = self.loadGoData()
 
     def initUI(self):
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.Tool)
@@ -42,16 +43,6 @@ class TranslucentWidget(QWidget):
 
         self.setLayout(layout)
 
-    def loadGoData(self):
-        if os.path.exists("go.json"):
-            with open("go.json", "r") as file:
-                return json.load(file)
-        return {}
-
-    def saveGoData(self):
-        with open("go.json", "w") as file:
-            json.dump(self.go_data, file, indent=4)
-
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:
             self.hideWidget()
@@ -77,20 +68,10 @@ class TranslucentWidget(QWidget):
         if text:
             if text.lower().startswith("go "):
                 command = text[3:]
-                if command.startswith("add "):
-                    parts = command[4:].split(" ")
-                    if len(parts) == 2 and parts[0].startswith("[") and parts[0].endswith("]") and parts[1].startswith("(") and parts[1].endswith(")"):
-                        alias = parts[0][1:-1]
-                        url = parts[1][1:-1]
-                        self.go_data[alias] = url
-                        self.saveGoData()
-                        self.dropdown.clear()
-                        self.dropdown.addItem(f"Alias '{alias}' agregado con URL '{url}'")
-                    else:
-                        self.dropdown.clear()
-                        self.dropdown.addItem("Formato incorrecto. Use 'go add [alias] (url)'")
-                else:
-                    self.filterDropdownItems(command)
+                result = self.go_module.handleGoCommand(command)
+                if result:
+                    self.dropdown.clear()
+                    self.dropdown.addItem(result)
             else:
                 if not self.dropdown.items:
                     self.dropdown.addItem(f"Ejecutar {text}")
@@ -105,18 +86,6 @@ class TranslucentWidget(QWidget):
         else:
             self.dropdown.hideDropdown()
 
-    def filterDropdownItems(self, filter_text):
-        """Filtra los elementos del desplegable que concuerden con el texto del filtro."""
-        self.dropdown.clear()
-        if self.go_data:
-            for alias, url in self.go_data.items():
-                if filter_text.lower() in alias.lower():
-                    self.dropdown.addItem(f"{alias}\n{url}")
-            if not self.dropdown.items:
-                self.dropdown.addItem(f"No se encontró el alias '{filter_text}'. Use 'go add [{filter_text}] (url)' para crearlo.")
-        else:
-            self.dropdown.addItem("No existen alias, cree uno con 'go add [alias] (url)'")
-
     def onFocusChanged(self, old, new):
         if not self.isAncestorOf(new) and new != self and not self.dropdown.isAncestorOf(new):
             self.hideWidget()
@@ -128,28 +97,10 @@ class TranslucentWidget(QWidget):
                 QApplication.instance().quit()
             elif text.lower().startswith("go "):
                 alias = text[3:] if text[3:] else self.getSelectedAlias()
-                if alias in self.go_data:
-                    url = self.go_data[alias]
-                    try:
-                        subprocess.Popen(["C:/Program Files/Google/Chrome/Application/chrome.exe", url], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL, start_new_session=True)
-                        notification = Notification(f"Abriendo {url}", 3000, self)
-                        notification.showNotification()
-                    except Exception as e:
-                        print(f"Error al abrir '{url}': {e}")
-                else:
-                    if self.dropdown.items and "No se encontró el alias" not in self.dropdown.items[0].layout().itemAt(0).widget().text():
-                        alias = self.getSelectedAlias()
-                        url = self.go_data[alias]
-                        try:
-                            subprocess.Popen(["C:/Program Files/Google/Chrome/Application/chrome.exe", url], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL, start_new_session=True)
-                            notification = Notification(f"Abriendo {url}", 3000, self)
-                            notification.showNotification()
-                        except Exception as e:
-                            print(f"Error al abrir '{url}': {e}")
-                    else:
-                        print(f"No se encontró el alias '{alias}'")
+                self.go_module.executeGoCommand(alias)
             else:
                 try:
+                    print(f"Ejecutando comando: {text}")
                     subprocess.Popen(text, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL, start_new_session=True)
                 except Exception as e:
                     print(f"Error al ejecutar '{text}': {e}")

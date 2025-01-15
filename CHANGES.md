@@ -1,5 +1,8 @@
 # Changelog
 
+## v1.1.13
+- Mejoras en el módulo go para usar el alias del elemento seleccionado en el desplegable si el alias no existe.
+
 ## v1.1.12
 - Añadidas instrucciones de compilación al archivo README.md.
 
