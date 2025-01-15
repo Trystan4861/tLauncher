@@ -89,8 +89,10 @@ class TranslucentWidget(QWidget):
             self.dropdown.hideDropdown()
 
     def onFocusChanged(self, old, new):
-        if not self.isAncestorOf(new) and new != self and not self.dropdown.isAncestorOf(new):
-            self.hideWidget()
+        if not self.isAncestorOf(new) and new != self and not self.dropdown.isAncestorOf(new) and not self.settingsWindow.isAncestorOf(new):
+            self.settingsWindow.hide()
+        elif self.isAncestorOf(new):
+            self.textBox.setFocus()
 
     def doIt(self):
         text = self.textBox.text()
@@ -152,3 +154,4 @@ class TranslucentWidget(QWidget):
 
     def showSettings(self):
         self.settingsWindow.show()
+        self.settingsWindow.setFocus()
