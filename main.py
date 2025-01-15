@@ -35,7 +35,7 @@ if __name__ == "__main__":
         sys.exit(0)
 
     app = QApplication(sys.argv)
-    load_stylesheet(app, "styles.qss")
+    load_stylesheet(app, "style.qss")
     widget = TranslucentWidget()
     widget.showWidget()  # Asegurar que el input reciba el foco
 

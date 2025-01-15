@@ -167,7 +167,7 @@ class Dropdown(QWidget):
     def loadStyles(self):
         """Carga estilos desde un archivo QSS."""
         try:
-            with open("styles_dd.qss", "r") as f:
+            with open("style_dd.qss", "r") as f:
                 self.setStyleSheet(f.read())
         except FileNotFoundError:
-            print("Error: styles_dd.qss no encontrado. Asegúrate de que el archivo existe.")
+            print("Error: style_dd.qss no encontrado. Asegúrate de que el archivo existe.")
