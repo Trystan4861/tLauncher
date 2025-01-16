@@ -88,12 +88,13 @@ class TranslucentWidget(QWidget):
     def eventFilter(self, source, event):
         if event.type() == event.KeyPress and source is self.textBox:
             if event.modifiers() == Qt.AltModifier and Qt.Key_1 <= event.key() <= Qt.Key_9:
-                index = event.key() - Qt.Key_1
-                print(f"Alt+{index + 1} pressed")  # Mensaje de depuración
-                if self.dropdown.isVisible() and index < len(self.dropdown.items):
-                    self.dropdown.selected_index = index
-                    self.doIt()
-                return True  # Evitar que se escriba en el cuadro de texto
+                if not self.textBox.text().lower().startswith("go delete "):
+                    index = event.key() - Qt.Key_1
+                    print(f"Alt+{index + 1} pressed")  # Mensaje de depuración
+                    if self.dropdown.isVisible() and index < len(self.dropdown.items):
+                        self.dropdown.selected_index = index
+                        self.doIt()
+                    return True  # Evitar que se escriba en el cuadro de texto
         return super().eventFilter(source, event)
 
     def addDropdownItem(self):
@@ -107,10 +108,14 @@ class TranslucentWidget(QWidget):
         if text:
             if text.lower().startswith("go ") and self.go_enabled:
                 command = text[3:]
-                result = self.go_module.handleGoCommand(command)
-                if result:
-                    self.dropdown.clear()
-                    self.dropdown.addItem(result)
+                if command.lower().startswith("delete "):
+                    alias = command[7:]
+                    self.go_module.filterDropdownItems(alias)
+                else:
+                    result = self.go_module.handleGoCommand(command)
+                    if result:
+                        self.dropdown.clear()
+                        self.dropdown.addItem(result)
             else:
                 if not self.dropdown.items:
                     self.dropdown.addItem(f"Ejecutar {text}")
