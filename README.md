@@ -51,9 +51,9 @@ Para compilar la aplicación en un ejecutable, puedes usar `PyInstaller`. Sigue 
 - `main.py`: Punto de entrada de la aplicación.
 - `widget.py`: Implementación del widget translúcido.
 - `dropdown.py`: Implementación del menú desplegable.
+- `go.py`: Implementación del módulo `go`.
 - `tray.py`: Implementación del icono en la bandeja del sistema.
-- `styles.qss`: Archivo de estilos para la aplicación.
-- `settings-icon.svg`: Icono de configuración utilizado en la interfaz.
+- `styles/*.qss`: Archivos de estilos para la aplicación.
 
 # Changelog
 

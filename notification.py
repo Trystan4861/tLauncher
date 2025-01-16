@@ -20,7 +20,7 @@ class Notification(QWidget):
 
     def loadStyles(self):
         try:
-            with open("style_notification.qss", "r") as f:
+            with open("styles/style_notification.qss", "r") as f:
                 return f.read()
         except FileNotFoundError:
             print("Error: style_notification.qss no encontrado. Asegúrate de que el archivo existe.")

@@ -144,6 +144,9 @@ class TranslucentWidget(QWidget):
         if text:
             if text.lower() == "exit":
                 QApplication.instance().quit()
+            elif text.lower() == "hide":
+                self.hideWidget()
+                return
             elif text.lower().startswith("go ") and self.go_enabled:
                 alias = text[3:] if text[3:] else self.getSelectedAlias()
                 if text.lower().startswith("go delete "):
