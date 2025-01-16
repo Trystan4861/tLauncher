@@ -44,7 +44,19 @@ class GoModule:
                 if filter_text.lower() in alias.lower():
                     self.parent.dropdown.addItem(f"{alias}\n{url}")
             if not self.parent.dropdown.items:
-                self.parent.dropdown.addItem(f"No se encontró el alias '{filter_text}'. Use 'go add [{filter_text}] (url)' para crearlo.")
+                if "add [".startswith(filter_text.lower()) or filter_text.lower().startswith("add ["):
+                    alias = filter_text[4:].replace("[", "") or "alias"
+                    if "]" in alias:
+                        alias = alias[:alias.index("]")]
+                    try:
+                        url = filter_text[filter_text.index("]") + 2:].replace("(", "").replace(")", "")
+                        if not url:
+                            url = "url"
+                    except ValueError:
+                        url = "url"
+                    self.parent.dropdown.addItem(f"Uso: go add [{alias}] ({url})")
+                if "delete [".startswith(filter_text.lower()):
+                    self.parent.dropdown.addItem("Uso: go delete [alias]")
         else:
             self.parent.dropdown.addItem("No existen alias, cree uno con 'go add [alias] (url)'")
 
@@ -61,24 +73,40 @@ class GoModule:
                 print(f"Error al abrir '{url}': {e}")
         else:
             if self.parent.dropdown.items and "No se encontró el alias" not in self.parent.dropdown.items[0].layout().itemAt(0).widget().text():
-                alias = self.parent.getSelectedAlias()
-                url = self.go_data[alias]
-                try:
-                    print(f"Ejecutando comando: webbrowser.open({url})")
-                    webbrowser.open(url, new=0, autoraise=True)
-                    notification = Notification(f"Abriendo {url}", 3000, self.parent)
-                    notification.showNotification()
-                    self.parent.hideWidget()
-                except Exception as e:
-                    print(f"Error al abrir '{url}': {e}")
+                if alias.lower().startswith("add ["):
+                    parts = alias[5:].split(" ", 1)
+                    alias= parts[0].replace("[", "").replace("]", "")
+                    url = parts[1].replace("(", "").replace(")", "")
+                    self.go_data[alias] = url
+                    self.saveGoData()
+                    notification = Notification(f"Alias '{alias}' agregado con URL '{url}'", 3000, self.parent)
+                    return
+                elif alias.lower().startswith("delete ["):
+                    print(alias)
+                else:
+                    alias = self.parent.getSelectedAlias()
+                    url = self.go_data[alias]
+                    try:
+                        print(f"Ejecutando comando: webbrowser.open({url})")
+                        webbrowser.open(url, new=0, autoraise=True)
+                        notification = Notification(f"Abriendo {url}", 3000, self.parent)
+                        notification.showNotification()
+                        self.parent.hideWidget()
+                    except Exception as e:
+                        print(f"Error al abrir '{url}': {e}")
             else:
                 print(f"No se encontró el alias '{alias}'")
-
+    def removeAlias(self, alias):
+        del self.go_data[alias]
+        self.saveGoData()
+        return f"Alias '{alias}' eliminado."
+    
     def deleteAlias(self, alias):
         """Elimina un alias del archivo JSON."""
         if alias in self.go_data:
-            del self.go_data[alias]
-            self.saveGoData()
-            return f"Alias '{alias}' eliminado."
+            self.removeAlias(alias)
+        elif self.parent.dropdown.items and "No se encontró el alias" not in self.parent.dropdown.items[0].layout().itemAt(0).widget().text():
+            alias = self.parent.getSelectedAlias()
+            self.removeAlias(alias)
         else:
             return f"Alias '{alias}' no encontrado."
