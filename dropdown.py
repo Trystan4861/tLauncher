@@ -6,7 +6,7 @@ Autor: @trystan4861
 
 from PyQt5.QtCore import Qt, QPoint
 from PyQt5.QtWidgets import QWidget, QLabel, QScrollArea, QVBoxLayout, QHBoxLayout
-
+import os
 class Dropdown(QWidget):
     def __init__(self, parent=None, input_widget=None):
         super().__init__(parent)
@@ -160,14 +160,14 @@ class Dropdown(QWidget):
                 else:
                     text_label.setProperty("selected", False)
                     tag_label.setProperty("selected", False)
-                text_label.setStyleSheet("")  # Aplica el estilo definido en QSS
-                tag_label.setStyleSheet("")  # Aplica el estilo definido en QSS
+                text_label.setStyleSheet("")
+                tag_label.setStyleSheet("")
             self.selected_index = index
 
     def loadStyles(self):
-        """Carga estilos desde un archivo QSS."""
+        styles_path=super().getPath("styles")
         try:
-            with open("styles/style_dd.qss", "r") as f:
+            with open(os.path.join(self.getPath("styles"), "style_dd.qss"), "r") as f:
                 self.setStyleSheet(f.read())
         except FileNotFoundError:
             print("Error: style_dd.qss no encontrado. Asegúrate de que el archivo existe.")

@@ -9,9 +9,12 @@ from widget import TranslucentWidget
 import sys
 import socket
 import json
+import os
 from threading import Thread
 
-def load_stylesheet(app, path):
+def load_stylesheet(app):
+    #obtenemos la ruta actual del ejecutable
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "styles/style.qss")
     with open(path, "r") as file:
         app.setStyleSheet(file.read())
 
@@ -35,7 +38,7 @@ if __name__ == "__main__":
         sys.exit(0)
 
     app = QApplication(sys.argv)
-    load_stylesheet(app, "styles/style.qss")
+    load_stylesheet(app)
     widget = TranslucentWidget()
     widget.showWidget()  # Asegurar que el input reciba el foco
 

@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel, QHBoxLayo
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPainter, QBrush, QColor
 import configparser
-
+import os
 class SettingsWindow(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -43,8 +43,9 @@ class SettingsWindow(QWidget):
         self.loadSettings()
 
     def loadStyles(self):
+        style_path=super().getPath("styles")
         try:
-            with open("style_settings.qss", "r") as f:
+            with open(os.path.join(self.getPath("styles"), "style_settings.qss"), "r") as f:
                 return f.read()
         except FileNotFoundError:
             print("Error: style_settings.qss no encontrado. Asegúrate de que el archivo existe.")

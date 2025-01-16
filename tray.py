@@ -1,9 +1,10 @@
 from PyQt5.QtWidgets import QSystemTrayIcon, QMenu, QApplication
 from PyQt5.QtGui import QIcon, QCursor
-
+import os
 class TrayIcon(QSystemTrayIcon):
     def __init__(self, parent=None):
-        super().__init__(QIcon("icon.png"), parent)
+        icons_path=super().icons_path
+        super().__init__(QIcon(os.path.join(icons_path, "tray.png")), parent)
         self.setToolTip("tLauncher")
         self.createTrayMenu()
         self.activated.connect(self.onTrayIconActivated)

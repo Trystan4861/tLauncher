@@ -52,8 +52,10 @@ class TranslucentWidget(QWidget):
 
         layout = QVBoxLayout()
 
+
+
         self.settingsButton = QPushButton(self)
-        self.settingsButton.setIcon(QIcon("settings-icon.png"))
+        self.settingsButton.setIcon(QIcon(os.path.join(self.getPath("icons"), "settings.png")))
         self.settingsButton.setFixedSize(40, 40)
         self.settingsButton.clicked.connect(self.showSettings)
 
@@ -71,6 +73,18 @@ class TranslucentWidget(QWidget):
         layout.setContentsMargins(10, 0, 10, 10)
 
         self.setLayout(layout)
+
+    def getPath(self,what="icons"):
+                # Obtener la ruta del ejecutable
+        if getattr(sys, 'frozen', False):
+            executable_path = os.path.dirname(sys.executable)
+        else:
+            executable_path = os.path.dirname(os.path.abspath(__file__))
+
+        if what == "icons":
+            return os.path.join(executable_path, 'icons')
+        elif what == "styles":
+            return os.path.join(executable_path, 'styles')
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:
