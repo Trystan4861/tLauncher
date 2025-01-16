@@ -43,9 +43,9 @@ class SettingsWindow(QWidget):
         self.loadSettings()
 
     def loadStyles(self):
-        style_path=super().getPath("styles")
+        style_path=self.parent().getPath("styles")
         try:
-            with open(os.path.join(self.getPath("styles"), "style_settings.qss"), "r") as f:
+            with open(os.path.join(self.parent().getPath("styles"), "style_settings.qss"), "r") as f:
                 return f.read()
         except FileNotFoundError:
             print("Error: style_settings.qss no encontrado. Asegúrate de que el archivo existe.")

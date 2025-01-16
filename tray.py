@@ -3,8 +3,8 @@ from PyQt5.QtGui import QIcon, QCursor
 import os
 class TrayIcon(QSystemTrayIcon):
     def __init__(self, parent=None):
-        icons_path=super().icons_path
-        super().__init__(QIcon(os.path.join(icons_path, "tray.png")), parent)
+        path = os.path.dirname(os.path.abspath(__file__))
+        super().__init__(QIcon(os.path.join(path,"tray.png")), parent)
         self.setToolTip("tLauncher")
         self.createTrayMenu()
         self.activated.connect(self.onTrayIconActivated)
