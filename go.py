@@ -30,6 +30,9 @@ class GoModule:
                 return f"Alias '{alias}' agregado con URL '{url}'"
             else:
                 return "Formato incorrecto. Use 'go add [alias] (url)'"
+        elif command.startswith("delete "):
+            alias = command[7:]
+            return self.deleteAlias(alias)
         else:
             return self.filterDropdownItems(command)
 
@@ -70,3 +73,12 @@ class GoModule:
                     print(f"Error al abrir '{url}': {e}")
             else:
                 print(f"No se encontró el alias '{alias}'")
+
+    def deleteAlias(self, alias):
+        """Elimina un alias del archivo JSON."""
+        if alias in self.go_data:
+            del self.go_data[alias]
+            self.saveGoData()
+            return f"Alias '{alias}' eliminado."
+        else:
+            return f"Alias '{alias}' no encontrado."

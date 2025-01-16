@@ -60,6 +60,7 @@ class TranslucentWidget(QWidget):
         self.textBox.setPlaceholderText("Escribe aquí...")
         self.textBox.setFixedSize(420, 65)
         self.textBox.textChanged.connect(self.onTextChanged)
+        self.textBox.installEventFilter(self)
 
         self.dropdown = Dropdown(self, input_widget=self.textBox)
         self.dropdown.setFixedWidth(self.textBox.width())
@@ -83,6 +84,17 @@ class TranslucentWidget(QWidget):
                     self.dropdown.navigateSelection('down')
         else:
             super().keyPressEvent(event)
+
+    def eventFilter(self, source, event):
+        if event.type() == event.KeyPress and source is self.textBox:
+            if event.modifiers() == Qt.AltModifier and Qt.Key_1 <= event.key() <= Qt.Key_9:
+                index = event.key() - Qt.Key_1
+                print(f"Alt+{index + 1} pressed")  # Mensaje de depuración
+                if self.dropdown.isVisible() and index < len(self.dropdown.items):
+                    self.dropdown.selected_index = index
+                    self.doIt()
+                return True  # Evitar que se escriba en el cuadro de texto
+        return super().eventFilter(source, event)
 
     def addDropdownItem(self):
         index = len(self.dropdown.items) + 1
@@ -126,7 +138,12 @@ class TranslucentWidget(QWidget):
                 QApplication.instance().quit()
             elif text.lower().startswith("go ") and self.go_enabled:
                 alias = text[3:] if text[3:] else self.getSelectedAlias()
-                self.go_module.executeGoCommand(alias)
+                if text.lower().startswith("go delete "):
+                    alias = text[10:]
+                    result = self.go_module.deleteAlias(alias)
+                    print(result)
+                else:
+                    self.go_module.executeGoCommand(alias)
             else:
                 try:
                     print(f"Ejecutando comando: {text}")
