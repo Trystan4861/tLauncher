@@ -1,34 +1,25 @@
-import pystray
-from pystray import MenuItem as item
-from PIL import Image, ImageDraw
+from PyQt5.QtWidgets import QSystemTrayIcon, QMenu, QApplication
+from PyQt5.QtGui import QIcon, QCursor
+import os
 
-class TrayIcon:
-    def __init__(self, main_window):
-        self.main_window = main_window
-        self.icon = pystray.Icon("tLauncher")
-        self.icon.menu = pystray.Menu(
-            item('Show', self.show),
-            item('Quit', self.quit)
-        )
-        self.icon.icon = self.create_image()
+class TrayIcon(QSystemTrayIcon):
+    def __init__(self, parent=None, get_resource_path=None):
+        self.get_resource_path = get_resource_path
+        icon_path = self.get_resource_path("resources/images/icons/tray.png")
+        super().__init__(QIcon(icon_path), parent)
+        self.setToolTip("tLauncher")
+        self.createTrayMenu()
+        self.activated.connect(self.onTrayIconActivated)
+        self.show()
 
-    def create_image(self):
-        # Crear un icono simple para la bandeja de notificación
-        image = Image.new('RGB', (64, 64), (255, 255, 255))
-        dc = ImageDraw.Draw(image)
-        dc.rectangle(
-            (0, 0, 64, 64),
-            fill=(255, 0, 0),
-            outline=(0, 0, 0)
-        )
-        return image
+    def createTrayMenu(self):
+        trayMenu = QMenu()
+        showAction = trayMenu.addAction("Mostrar tLauncher")
+        showAction.triggered.connect(self.parent().display)
+        exitAction = trayMenu.addAction("Salir")
+        exitAction.triggered.connect(QApplication.instance().quit)
+        self.setContextMenu(trayMenu)
 
-    def show(self, icon, item):
-        self.main_window.show()
-
-    def quit(self, icon, item):
-        self.icon.stop()
-        self.main_window.root.quit()
-
-    def run(self):
-        self.icon.run()
+    def onTrayIconActivated(self, reason):
+        if reason in (QSystemTrayIcon.Trigger, QSystemTrayIcon.Context):
+            self.contextMenu().popup(QCursor.pos())
