@@ -1,10 +1,34 @@
 from PyQt5 import QtWidgets, QtGui, QtCore
 from .config_window import ConfigWindow
+import logging
+# Configuración del logger
+logging.basicConfig(level=logging.INFO)
+console = logging.getLogger(__name__)
+
+class CommandLineEdit(QtWidgets.QLineEdit):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.ignored_shortcut = None
+
+    def set_ignored_shortcut(self, shortcut):
+        self.ignored_shortcut = shortcut
+
+    def keyPressEvent(self, event):
+        if self.ignored_shortcut and self.is_ignored_shortcut(event):
+            return
+        super().keyPressEvent(event)
+
+    def is_ignored_shortcut(self, event):
+        modifiers = event.modifiers()
+        key = event.key()
+        sequence = QtGui.QKeySequence(modifiers | key).toString()
+        return sequence == self.ignored_shortcut
 
 class MainWindow(QtWidgets.QMainWindow):
-    def __init__(self, get_resource_path):
+    def __init__(self, get_base_path, hotkey_str):
         super().__init__()
-        self.get_resource_path = get_resource_path
+        self.get_base_path = get_base_path
+        self.hotkey_str = hotkey_str
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.Tool | QtCore.Qt.WindowStaysOnTopHint)
         self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
         self.setWindowTitle("tLauncher")
@@ -24,15 +48,18 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # Encabezado con imagen
         self.header = QtWidgets.QLabel()
-        self.header.setPixmap(QtGui.QPixmap(self.get_resource_path("resources/images/icons/gears.png")).scaled(20, 20, QtCore.Qt.KeepAspectRatio))
+        self.header.setPixmap(QtGui.QPixmap(self.get_base_path("resources/images/icons/gears.png")).scaled(20, 20, QtCore.Qt.KeepAspectRatio))
         self.header.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignTop)
         container_layout.addWidget(self.header, 0, 1, QtCore.Qt.AlignRight | QtCore.Qt.AlignTop)
 
         # Cuadro de texto para ingresar comandos
-        self.command_input = QtWidgets.QLineEdit()
+        self.command_input = CommandLineEdit()
         self.command_input.setPlaceholderText("Enter command")
         self.command_input.returnPressed.connect(self.execute_command)
         container_layout.addWidget(self.command_input, 1, 0, 1, 2)
+
+        # Ignorar la combinación de teclas configurada como hotkey
+        self.command_input.set_ignored_shortcut(self.hotkey_str)
 
         # Selector de comandos (oculto)
         self.command_select = QtWidgets.QComboBox()
@@ -47,7 +74,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def apply_styles(self):
         # Aplicar estilos desde el archivo QSS
-        with open(self.get_resource_path("resources/styles/main_window.qss"), "r") as style_file:
+        with open(self.get_base_path("resources/styles/main_window.qss"), "r") as style_file:
             self.setStyleSheet(style_file.read())
 
     def center_on_screen(self):
@@ -61,6 +88,8 @@ class MainWindow(QtWidgets.QMainWindow):
         command = self.command_input.text().strip()
         if command == "hide":
             self.hide()
+        elif command == "exit":
+            self.quit()
         else:
             # Aquí iría la lógica para ejecutar el comando y mostrar el resultado
             result = f"Executing: {command}"
@@ -72,10 +101,19 @@ class MainWindow(QtWidgets.QMainWindow):
         self.config_window.show()
 
     def display(self):
+        console.info("Displaying main window")
+        self.setWindowState(self.windowState() & ~QtCore.Qt.WindowMinimized | QtCore.Qt.WindowActive)
         self.show()
+        self.raise_()
+        self.activateWindow()
+        QtWidgets.QApplication.setActiveWindow(self)
+        self.command_input.setFocus()  # Asegurar que el cuadro de texto reciba el foco
 
     def keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_Escape:
             self.hide()
         else:
             super().keyPressEvent(event)
+
+    def quit(self):
+        QtWidgets.QApplication.instance().quit()

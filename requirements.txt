@@ -1,3 +1,5 @@
-pyqt5
+PyQt5
 pystray
 Pillow
+keyboard
+pynput
