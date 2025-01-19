@@ -1,6 +1,8 @@
 from PyQt5 import QtWidgets, QtGui, QtCore
 from .config_window import ConfigWindow
+from pywinauto import Application
 import logging
+
 # Configuración del logger
 logging.basicConfig(level=logging.INFO)
 console = logging.getLogger(__name__)
@@ -25,8 +27,9 @@ class CommandLineEdit(QtWidgets.QLineEdit):
         return sequence == self.ignored_shortcut
 
 class MainWindow(QtWidgets.QMainWindow):
-    def __init__(self, get_base_path, hotkey_str):
+    def __init__(self, launcher, get_base_path, hotkey_str):
         super().__init__()
+        self.launcher = launcher
         self.get_base_path = get_base_path
         self.hotkey_str = hotkey_str
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.Tool | QtCore.Qt.WindowStaysOnTopHint)
@@ -87,7 +90,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def execute_command(self):
         command = self.command_input.text().strip()
         if command == "hide":
-            self.hide()
+            self.launcher.hide_main_window()
         elif command == "exit":
             self.quit()
         else:
@@ -109,9 +112,15 @@ class MainWindow(QtWidgets.QMainWindow):
         QtWidgets.QApplication.setActiveWindow(self)
         self.command_input.setFocus()  # Asegurar que el cuadro de texto reciba el foco
 
+        # Utilizar pywinauto para forzar que la ventana se convierta en la ventana activa
+        app = Application().connect(title="tLauncher")
+        window = app.window(title="tLauncher")
+        window.restore()
+        window.set_focus()
+
     def keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_Escape:
-            self.hide()
+            self.launcher.hide_main_window()
         else:
             super().keyPressEvent(event)
 

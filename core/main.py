@@ -7,6 +7,11 @@ from plugin_manager import PluginManager
 from ui.main_window import MainWindow
 from ui.tray_icon import TrayIcon
 from hook import add_hotkey_action, Shortcut, Action
+import logging
+
+# Configuración del logger
+logging.basicConfig(level=logging.INFO)
+console = logging.getLogger(__name__)
 
 if platform.system() == "Windows":
     import msvcrt
@@ -79,7 +84,7 @@ class Launcher(QtCore.QObject):
         self.config = load_config()
         self.app = QtWidgets.QApplication(sys.argv)
         hotkey_str = get_config_value(self.config, 'CONFIG', 'Hotkey', 'win+space')
-        self.main_window = MainWindow(get_base_path, hotkey_str)
+        self.main_window = MainWindow(self, get_base_path, hotkey_str)
         self.tray_icon = TrayIcon(self.main_window, get_base_path)
         self.register_hotkey(hotkey_str)
         self.monitor_signal_file()
@@ -92,9 +97,15 @@ class Launcher(QtCore.QObject):
 
     @QtCore.pyqtSlot()
     def monitor_signal_file(self):
-        if check_signal_file():
+        console.info("Monitoring signal file")
+        if not self.main_window.isVisible() and check_signal_file():
             self.main_window.display()
-        QtCore.QTimer.singleShot(500, self.monitor_signal_file)
+        if not self.main_window.isVisible():
+            QtCore.QTimer.singleShot(500, self.monitor_signal_file)
+
+    def hide_main_window(self):
+        self.main_window.hide()
+        self.monitor_signal_file()
 
     def run(self):
         self.main_window.display()
