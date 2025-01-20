@@ -97,7 +97,6 @@ class Launcher(QtCore.QObject):
 
     @QtCore.pyqtSlot()
     def monitor_signal_file(self):
-        console.info("Monitoring signal file")
         if not self.main_window.isVisible() and check_signal_file():
             self.main_window.display()
         if not self.main_window.isVisible():
