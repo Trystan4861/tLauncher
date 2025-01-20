@@ -1,8 +1,9 @@
 from PyQt5 import QtWidgets, QtGui, QtCore
 from .config_window import ConfigWindow
-import pythoncom
 from pywinauto import Application
 import logging
+
+PROGRAM_NAME = "tLauncher"
 
 # Configuración del logger
 logging.basicConfig(level=logging.INFO)
@@ -33,7 +34,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.hotkey_str = hotkey_str
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.Tool | QtCore.Qt.WindowStaysOnTopHint)
         self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
-        self.setWindowTitle("tLauncher")
+        self.setWindowTitle(PROGRAM_NAME)
         self.setGeometry(100, 100, 800, 80)
         self.apply_styles()
         self.create_widgets()
@@ -101,17 +102,10 @@ class MainWindow(QtWidgets.QMainWindow):
         QtWidgets.QApplication.setActiveWindow(self)
         self.command_input.setFocus()  # Asegurar que el cuadro de texto reciba el foco
 
-        # Inicializar COM en el modo STA antes de utilizar pywinauto
-        pythoncom.CoInitialize()
-
         # Utilizar pywinauto para forzar que la ventana se convierta en la ventana activa
-        app = Application().connect(title="tLauncher")
-        window = app.window(title="tLauncher")
-        window.restore()
-        window.set_focus()
-
-        # Desinicializar COM después de utilizar pywinauto
-        pythoncom.CoUninitialize()
+        Application().connect(title=PROGRAM_NAME).window(title=PROGRAM_NAME).set_focus()
+        #window = app.window(title=PROGRAM_NAME)
+        #window.set_focus()
 
     def keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_Escape:
