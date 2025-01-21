@@ -2,18 +2,27 @@ from PyQt5 import QtWidgets, QtGui, QtCore
 from .config_window import ConfigWindow
 from pywinauto import Application
 import logging
+import sys
+from .functions import is_compiled
 
 PROGRAM_NAME = "tLauncher"
+
 
 # Configuración del logger
 logging.basicConfig(level=logging.INFO)
 console = logging.getLogger(__name__)
 
 class TransparentLineEdit(QtWidgets.QLineEdit):
+    keyPressed = QtCore.pyqtSignal(QtCore.QEvent)
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setObjectName("TransparentLineEdit")
         self.setStyleSheet("background: transparent; color: #ffffff; font-weight: bold;")
+
+    def keyPressEvent(self, event):
+        super().keyPressEvent(event)
+        self.keyPressed.emit(event)
 
 class PlaceholderLineEdit(QtWidgets.QLineEdit):
     def __init__(self, parent=None):
@@ -52,7 +61,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # Cuadro de texto transparente
         self.command_input = TransparentLineEdit()
         self.command_input.setPlaceholderText("Introduce un comando")
-        self.command_input.returnPressed.connect(self.execute_command)
+        self.command_input.keyPressed.connect(self.handle_key_press)
         container_layout.addWidget(self.command_input)
 
         # Cuadro de texto para placeholder vitaminado
@@ -61,8 +70,34 @@ class MainWindow(QtWidgets.QMainWindow):
 
         container.setLayout(container_layout)
         layout.addWidget(container)
+
+        # Franja horizontal para mensajes
+        self.message_frame = QtWidgets.QFrame()
+        self.message_frame.setFixedHeight(50)
+        self.message_frame.setStyleSheet("background-color: #202020;")
+        self.message_label = QtWidgets.QLabel()
+        self.message_label.setFixedHeight(30)
+        self.message_label.setStyleSheet("font-weight: bold; color: #fff;")
+        message_layout = QtWidgets.QHBoxLayout()
+        message_layout.addWidget(self.message_label)
+        self.message_frame.setLayout(message_layout)
+        self.message_frame.hide()  # Ocultar inicialmente
+
+        layout.addWidget(self.message_frame)
         central_widget.setLayout(layout)
         self.setCentralWidget(central_widget)
+
+    def show_message(self, text):
+        if text:
+            self.message_label.setText(text)
+            self.message_frame.show()
+            self.setFixedHeight(150)  # Ajustar la altura de la ventana para mostrar el mensaje
+        else:
+            self.message_frame.hide()
+            self.setFixedHeight(80)  # Ajustar la altura de la ventana para ocultar el mensaje
+
+    def is_message_visible(self):
+        return self.message_frame.isVisible()
 
     def apply_styles(self):
         # Aplicar estilos desde el archivo QSS
@@ -77,8 +112,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.move(window_geometry.topLeft())
 
     def execute_command(self):
-        command = self.command_input.text().strip()
-        console.info(f"Command entered: {command}")
+        command,parameters = self.getCommand()
+        console.info(f"Command entered: {command} {parameters}")
         if command == "hide":
             self.launcher.hide_main_window()
         elif command == "exit":
@@ -95,25 +130,32 @@ class MainWindow(QtWidgets.QMainWindow):
         self.config_window.show()
 
     def display(self):
+        self.center_on_screen()
         self.setWindowState(self.windowState() & ~QtCore.Qt.WindowMinimized | QtCore.Qt.WindowActive)
         self.show()
         self.raise_()
         self.activateWindow()
         QtWidgets.QApplication.setActiveWindow(self)
         self.command_input.setFocus()  # Asegurar que el cuadro de texto reciba el foco
+        if is_compiled():
+            executable_path = sys.executable
+            Application().connect(path=executable_path).window().set_focus()
+        else:
+            Application().connect(title=PROGRAM_NAME).window().set_focus()
 
-        # Utilizar pywinauto para forzar que la ventana se convierta en la ventana activa
-        Application().connect(title=PROGRAM_NAME).window(title=PROGRAM_NAME).set_focus()
-        #window = app.window(title=PROGRAM_NAME)
-        #window.set_focus()
-
-    def keyPressEvent(self, event):
+    def handle_key_press(self, event):
+        console.info(f"Key pressed: {event.text()} - {event.key()}")
         if event.key() == QtCore.Qt.Key_Escape:
             self.launcher.hide_main_window()
         elif event.key() == QtCore.Qt.Key_Return or event.key() == QtCore.Qt.Key_Enter:
             self.execute_command()
         else:
-            super().keyPressEvent(event)
-    
+            self.keyPressEvent(event)
+
+    def getCommand(self):
+        parts = self.command_input.text().strip().split(" ",1)
+        return [parts[0].lower() or "", parts[1] if len(parts) > 1 else ""]
+
+
     def quit(self):        
         QtWidgets.QApplication.instance().quit()

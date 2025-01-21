@@ -59,17 +59,4 @@ def populate_hotkey(shortcut):
             actions[shortcut.hotkey_str][0].action()
         except Exception as ex:
             console.error(f"Failed to execute hotkey's action. {str(ex)}")
-
-def register_window(hwnd):
-    global runnerWindow
-    runnerWindow = hwnd
-
-# Ejemplo de uso
-if __name__ == "__main__":
-    def example_action():
-        print("Action executed")
-
-    shortcut = Shortcut('ctrl+shift+a')
-    action = Action("example_module", example_action)
-    add_hotkey_action(shortcut, action)
-    keyboard.wait('esc')  # Mantener el script en ejecución hasta que se presione 'esc'
+            
