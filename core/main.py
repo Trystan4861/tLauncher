@@ -7,11 +7,8 @@ from plugin_manager import PluginManager
 from ui.main_window import MainWindow
 from ui.tray_icon import TrayIcon
 from hook import add_hotkey_action, Shortcut, Action
-import logging
+from ui.functions import console
 
-# Configuración del logger
-logging.basicConfig(level=logging.INFO)
-console = logging.getLogger(__name__)
 
 if platform.system() == "Windows":
     import msvcrt
@@ -93,7 +90,7 @@ class Launcher(QtCore.QObject):
         shortcut = Shortcut(hotkey_str)
         action = Action("main", lambda: self.main_window.display())
         if not add_hotkey_action(shortcut, action):
-            print(f"Failed to register hotkey {hotkey_str}")
+            console.warning(f"Failed to register hotkey {hotkey_str}")
 
     @QtCore.pyqtSlot()
     def monitor_signal_file(self):
@@ -116,7 +113,7 @@ if __name__ == "__main__":
     lock_file = open(lock_file_path, "w")
 
     if is_already_running(lock_file):
-        print("La aplicación ya está en ejecución.")
+        console.info("La aplicación ya está en ejecución.")
         create_signal_file()
         sys.exit(0)
 

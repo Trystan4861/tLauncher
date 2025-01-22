@@ -1,16 +1,11 @@
 from PyQt5 import QtWidgets, QtCore
 from .config_window import ConfigWindow
 from pywinauto import Application
-import logging
 import sys
-from .functions import is_compiled
+from .functions import is_compiled, console
 from .sizes import Sizes
 
 PROGRAM_NAME = "tLauncher"
-
-# Configuración del logger
-logging.basicConfig(level=logging.INFO)
-console = logging.getLogger(__name__)
 
 class TransparentLineEdit(QtWidgets.QLineEdit):
     keyPressed = QtCore.pyqtSignal(QtCore.QEvent)
@@ -44,7 +39,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.Tool | QtCore.Qt.WindowStaysOnTopHint)
         self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
         self.setWindowTitle(PROGRAM_NAME)
-        self.setGeometry(0, 0, Sizes.Window.WIDTH, 80)
+        self.setGeometry(0, 0, Sizes.Window.WIDTH, Sizes.CommandInput.HEIGHT)
         self.apply_styles()
         self.create_widgets()
         self.center_on_screen()
@@ -99,10 +94,17 @@ class MainWindow(QtWidgets.QMainWindow):
         if text:
             self.message_label.setText(text)
             self.message_frame.show()
-            self.setFixedHeight(Sizes.Window.HEIGHT_WITH_MESSAGE())  # Ajustar la altura de la ventana para mostrar el mensaje
         else:
             self.message_frame.hide()
-            self.setFixedHeight(Sizes.Window.HEIGHT)  # Ajustar la altura de la ventana para ocultar el mensaje
+        self.setFixedHeight(self.getWindowHeight()) # Ajustar tamaño de la ventana
+
+    def getWindowHeight(self):
+        height = Sizes.CommandInput.HEIGHT
+        if self.is_message_visible():
+            height += Sizes.Message.HEIGHT
+        #TODO: si hay elementos en el desplegable aumentar el tamaño por cada elemento
+        return height
+
 
     def is_message_visible(self):
         return self.message_frame.isVisible()
@@ -127,10 +129,8 @@ class MainWindow(QtWidgets.QMainWindow):
         elif command == "exit":
             self.quit()
         else:
-            # Aquí iría la lógica para ejecutar el comando y mostrar el resultado
-            result = f"Executing: {command}"
-            console.info(result)
-            print(result)  # Esto se puede cambiar para mostrar el resultado en la interfaz
+            #TODO: Aquí iría la lógica para ejecutar el comando y mostrar el resultado
+            console.info(f"Executing: {command}")
         self.command_input.clear()
 
     def open_config(self):
@@ -158,6 +158,7 @@ class MainWindow(QtWidgets.QMainWindow):
         elif event.key() == QtCore.Qt.Key_Return or event.key() == QtCore.Qt.Key_Enter:
             self.execute_command()
         else:
+            #TODO: Aquí iría la lógica para mostrar el placeholder vitaminado
             self.show_message(self.command_input.text())
             self.keyPressEvent(event)
 

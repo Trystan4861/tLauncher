@@ -7,8 +7,3 @@ class Sizes:
 
     class Window:
         WIDTH = 800
-        HEIGHT = 80
-        
-        @classmethod
-        def HEIGHT_WITH_MESSAGE(cls):
-            return cls.HEIGHT + Sizes.Message.HEIGHT

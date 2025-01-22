@@ -1,5 +1,11 @@
 # Registro de Cambios
 
+## v0.1.2
+
+- Clase Sizes para establecer tamaños de la interfaz.
+- Función svg2icon para convertir SVG a QIcon.
+- Fix keyPressEvent para evitar que se ejecute dos veces.
+
 ## v0.1.1
 
 - Corrección del problema de foco de la ventana principal al mostrarse con la hotkey usando `pywinauto`.

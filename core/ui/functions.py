@@ -1,5 +1,10 @@
-from PyQt5 import QtWidgets, QtGui, QtSvg, QtCore
+from PyQt5 import QtGui, QtSvg, QtCore
 import sys
+import logging
+
+# Configuración del logger
+logging.basicConfig(level=logging.INFO)
+console = logging.getLogger(__name__)
 
 svg_data = """
 <svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
