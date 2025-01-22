@@ -23,3 +23,22 @@ QPushButton {
     color: white;
     background-color: rgba(50, 50, 50, 200);
 }
+#messageLabel
+{
+    padding-left: 5px;
+}
+#centralWidget
+{
+    background-color: rgba(50, 50, 50, 200);
+    border: 1px solid lightgray;
+}
+#commandInputWrapper
+{
+    background-color: cyan;
+    border: 1px solid lightgray;
+}
+
+#TransparentLineEdit,#PlaceholderLineEdit
+{
+    padding-left: 5px;
+}

@@ -1,12 +1,12 @@
-from PyQt5 import QtWidgets, QtGui, QtCore
+from PyQt5 import QtWidgets, QtCore
 from .config_window import ConfigWindow
 from pywinauto import Application
 import logging
 import sys
 from .functions import is_compiled
+from .sizes import Sizes
 
 PROGRAM_NAME = "tLauncher"
-
 
 # Configuración del logger
 logging.basicConfig(level=logging.INFO)
@@ -44,7 +44,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.Tool | QtCore.Qt.WindowStaysOnTopHint)
         self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
         self.setWindowTitle(PROGRAM_NAME)
-        self.setGeometry(100, 100, 800, 80)
+        self.setGeometry(0, 0, Sizes.Window.WIDTH, 80)
         self.apply_styles()
         self.create_widgets()
         self.center_on_screen()
@@ -55,46 +55,54 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # Contenedor principal
         container = QtWidgets.QWidget()
-        container_layout = QtWidgets.QStackedLayout()
+        command_imput_wrapper = QtWidgets.QStackedLayout()
+        command_imput_wrapper.setObjectName("commandInputWrapper")
         container.setFixedSize(800, 80)
 
         # Cuadro de texto transparente
         self.command_input = TransparentLineEdit()
         self.command_input.setPlaceholderText("Introduce un comando")
         self.command_input.keyPressed.connect(self.handle_key_press)
-        container_layout.addWidget(self.command_input)
+        command_imput_wrapper.addWidget(self.command_input)
 
         # Cuadro de texto para placeholder vitaminado
         self.placeholder_input = PlaceholderLineEdit()
-        container_layout.addWidget(self.placeholder_input)
+        command_imput_wrapper.addWidget(self.placeholder_input)
 
-        container.setLayout(container_layout)
+        container.setLayout(command_imput_wrapper)
         layout.addWidget(container)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
 
         # Franja horizontal para mensajes
         self.message_frame = QtWidgets.QFrame()
-        self.message_frame.setFixedHeight(50)
+        self.message_frame.setFixedHeight(27)
         self.message_frame.setStyleSheet("background-color: #202020;")
+        self.message_frame.setObjectName("messageFrame")
         self.message_label = QtWidgets.QLabel()
-        self.message_label.setFixedHeight(30)
+        self.message_label.setFixedHeight(27)
         self.message_label.setStyleSheet("font-weight: bold; color: #fff;")
+        self.message_label.setObjectName("messageLabel")
         message_layout = QtWidgets.QHBoxLayout()
+        message_layout.setContentsMargins(0, 0, 0, 0)
+        message_layout.setSpacing(0)
         message_layout.addWidget(self.message_label)
         self.message_frame.setLayout(message_layout)
         self.message_frame.hide()  # Ocultar inicialmente
 
         layout.addWidget(self.message_frame)
         central_widget.setLayout(layout)
+        central_widget.setObjectName("centralWidget")
         self.setCentralWidget(central_widget)
 
     def show_message(self, text):
         if text:
             self.message_label.setText(text)
             self.message_frame.show()
-            self.setFixedHeight(150)  # Ajustar la altura de la ventana para mostrar el mensaje
+            self.setFixedHeight(Sizes.Window.HEIGHT_WITH_MESSAGE())  # Ajustar la altura de la ventana para mostrar el mensaje
         else:
             self.message_frame.hide()
-            self.setFixedHeight(80)  # Ajustar la altura de la ventana para ocultar el mensaje
+            self.setFixedHeight(Sizes.Window.HEIGHT)  # Ajustar la altura de la ventana para ocultar el mensaje
 
     def is_message_visible(self):
         return self.message_frame.isVisible()
@@ -150,6 +158,7 @@ class MainWindow(QtWidgets.QMainWindow):
         elif event.key() == QtCore.Qt.Key_Return or event.key() == QtCore.Qt.Key_Enter:
             self.execute_command()
         else:
+            self.show_message(self.command_input.text())
             self.keyPressEvent(event)
 
     def getCommand(self):
