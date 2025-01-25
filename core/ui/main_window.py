@@ -2,8 +2,8 @@ from PyQt5 import QtWidgets, QtCore
 from .config_window import ConfigWindow
 from pywinauto import Application
 import sys
-from .functions import is_compiled, console
-from .sizes import Sizes
+from functions import is_compiled, console
+from sizes import Sizes
 
 PROGRAM_NAME = "tLauncher"
 
