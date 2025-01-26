@@ -2,11 +2,13 @@ from PyQt5 import QtWidgets, QtCore
 from .config_window import ConfigWindow
 from pywinauto import Application
 import sys
-from functions import is_compiled, console
+import functions as f 
 from sizes import Sizes
 
 PROGRAM_NAME = "tLauncher"
+PLUGINS=[]
 
+console = f.console
 class TransparentLineEdit(QtWidgets.QLineEdit):
     keyPressed = QtCore.pyqtSignal(QtCore.QEvent)
 
@@ -34,15 +36,14 @@ class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, launcher, get_base_path, hotkey_str):
         super().__init__()
         self.launcher = launcher
-        self.get_base_path = get_base_path
         self.hotkey_str = hotkey_str
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.Tool | QtCore.Qt.WindowStaysOnTopHint)
         self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
         self.setWindowTitle(PROGRAM_NAME)
         self.setGeometry(0, 0, Sizes.Window.WIDTH, Sizes.CommandInput.HEIGHT)
-        self.apply_styles()
+        f.apply_styles(self, get_base_path("resources/styles/main_window.qss"))
         self.create_widgets()
-        self.center_on_screen()
+        f.center_on_screen(self)
 
     def create_widgets(self):
         central_widget = QtWidgets.QWidget()
@@ -109,18 +110,6 @@ class MainWindow(QtWidgets.QMainWindow):
     def is_message_visible(self):
         return self.message_frame.isVisible()
 
-    def apply_styles(self):
-        # Aplicar estilos desde el archivo QSS
-        with open(self.get_base_path("resources/styles/main_window.qss"), "r") as style_file:
-            self.setStyleSheet(style_file.read())
-
-    def center_on_screen(self):
-        screen = QtWidgets.QApplication.primaryScreen()
-        screen_geometry = screen.availableGeometry()
-        window_geometry = self.frameGeometry()
-        window_geometry.moveCenter(screen_geometry.center())
-        self.move(window_geometry.topLeft())
-
     def execute_command(self):
         command,parameters = self.getCommand()
         console.info(f"Command entered: {command} {parameters}")
@@ -145,7 +134,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.activateWindow()
         QtWidgets.QApplication.setActiveWindow(self)
         self.command_input.setFocus()  # Asegurar que el cuadro de texto reciba el foco
-        if is_compiled():
+        if f.is_compiled():
             executable_path = sys.executable
             Application().connect(path=executable_path).window().set_focus()
         else:

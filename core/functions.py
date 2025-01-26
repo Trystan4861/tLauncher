@@ -1,4 +1,4 @@
-from PyQt5 import QtGui, QtSvg, QtCore
+from PyQt5 import QtGui, QtSvg, QtCore, QtWidgets
 import sys
 import logging
 import os
@@ -20,6 +20,16 @@ svg_data = """
     <text x="32" y="37" font-size="24" text-anchor="middle" fill="white">SVG</text>
 </svg>
 """
+def center_on_screen(widget):
+    screen = QtWidgets.QApplication.primaryScreen()
+    screen_geometry = screen.availableGeometry()
+    window_geometry = widget.frameGeometry()
+    window_geometry.moveCenter(screen_geometry.center())
+    widget.move(window_geometry.topLeft())
+
+def apply_styles(widget, style_path):
+    with open(style_path, "r") as style_file:
+        widget.setStyleSheet(style_file.read())
 
 def is_compiled():
     return getattr(sys, 'frozen', False)

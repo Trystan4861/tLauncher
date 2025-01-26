@@ -4,6 +4,8 @@ import json
 PLUGIN_INFO_TEMPLATE = {
     "plugin": {
         "name": "SamplePlugin",
+        "version": "0.1",
+        "author": "@trystan4861",
         "description": "Muestra un mensaje de prueba.",
         "default_keyword": "say"
     }
