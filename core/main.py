@@ -1,5 +1,5 @@
 import sys
-import configparser
+import json
 from PyQt5 import QtWidgets, QtCore
 from plugin_manager import PluginManager
 from ui.main_window import MainWindow
@@ -9,30 +9,16 @@ from hook import add_hotkey_action, Shortcut, Action
 
 console = f.console
 
-def load_config():
-    config_path = f.get_base_path("config.ini")
-    config = configparser.ConfigParser()
-    if not f.pathExists(config_path):
-        config['CONFIG'] = {
-            'Hotkey': 'win+space'
-        }
-        with open(config_path, 'w') as configfile:
-            config.write(configfile)
-    else:
-        config.read(config_path)
-    return config
-
 class Launcher(QtCore.QObject):
     def __init__(self):
         super().__init__()
         self.plugin_manager = PluginManager(f.get_base_path('plugins'))
         self.plugin_manager.load_plugins()
-        self.config = load_config()
+        self.config = f.load_config()
         self.app = QtWidgets.QApplication(sys.argv)
-        hotkey_str = f.get_config_value(self.config, 'CONFIG', 'Hotkey', 'win+space')
-        self.main_window = MainWindow(self, f.get_base_path, hotkey_str)
+        self.main_window = MainWindow(self, f.get_base_path, self.config["hotkey"])
         self.tray_icon = TrayIcon(self.main_window, f.get_base_path)
-        self.register_hotkey(hotkey_str)
+        self.register_hotkey(self.config["hotkey"])
         self.monitor_signal_file()
 
     def register_hotkey(self, hotkey_str):

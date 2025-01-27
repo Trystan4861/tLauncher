@@ -1,3 +1,4 @@
+import json
 from PyQt5 import QtGui, QtSvg, QtCore, QtWidgets
 import sys
 import logging
@@ -83,11 +84,21 @@ def get_base_path(relative_path="", file=__file__):
 def pathExists(path):
     return os.path.exists(path)
 
-def get_config_value(config, section, key, default_value):
-    if not config.has_section(section):
-        config.add_section(section)
-    if not config.has_option(section, key):
-        config.set(section, key, default_value)
-        with open(get_base_path("config.ini"), 'w') as configfile:
-            config.write(configfile)
-    return config.get(section, key)
+def normalize_json(data):
+    if isinstance(data, dict):
+        return {k.lower(): v for k, v in data.items()}
+    elif isinstance(data, list):
+        return [normalize_json(i) for i in data]
+    else:
+        return data
+    
+def load_config(config_name="config.json",default_config={'hotkey': 'win+space'}):
+    config_path = get_base_path(config_name)
+    if not pathExists(config_path):
+        config = default_config
+        with open(config_path, 'w') as configfile:
+            json.dump(normalize_json(config), configfile, indent=4)
+    else:
+        with open(config_path, 'r') as configfile:
+            config = normalize_json(json.load(configfile))
+    return config
