@@ -120,3 +120,4 @@ dmypy.json
 .pyre/
 /tLauncher.code-workspace
 /base.html
+.tlauncher.lock
