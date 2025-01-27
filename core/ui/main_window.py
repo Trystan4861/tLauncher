@@ -2,6 +2,8 @@ from PyQt5 import QtWidgets, QtCore
 from .config_window import ConfigWindow
 from pywinauto import Application
 import sys
+import os
+import importlib.util
 import functions as f 
 from sizes import Sizes
 
@@ -42,8 +44,19 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setWindowTitle(PROGRAM_NAME)
         self.setGeometry(0, 0, Sizes.Window.WIDTH, Sizes.CommandInput.HEIGHT)
         f.apply_styles(self, get_base_path("resources/styles/main_window.qss"))
+        self.load_plugins(get_base_path("plugins/"))
         self.create_widgets()
         f.center_on_screen(self)
+
+    def load_plugins(self, plugins_path):
+        for plugin_name in os.listdir(plugins_path):
+            plugin_dir = os.path.join(plugins_path, plugin_name)
+            main_file = os.path.join(plugin_dir, "main.py")
+            if os.path.isdir(plugin_dir) and os.path.isfile(main_file):
+                spec = importlib.util.spec_from_file_location(f"plugins.{plugin_name}.main", main_file)
+                module = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(module)
+                print(f"Loaded plugin: {plugin_name}")
 
     def create_widgets(self):
         central_widget = QtWidgets.QWidget()
@@ -127,7 +140,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.config_window.show()
 
     def display(self):
-        self.center_on_screen()
+        f.center_on_screen(self)
         self.setWindowState(self.windowState() & ~QtCore.Qt.WindowMinimized | QtCore.Qt.WindowActive)
         self.show()
         self.raise_()
