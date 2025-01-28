@@ -6,22 +6,31 @@ import keyboard
 logging.basicConfig(level=logging.INFO)
 console = logging.getLogger(__name__)
 
+class Action:
+    """Class to represent an action"""
+    def __init__(self, name, action):
+        self.name = name
+        self.action = action
+
+    def __call__(self):
+        if callable(self.action):
+            self.action()
+        else:
+            raise TypeError(f"Action {self.name} is not callable")
+
 class Shortcut:
     """Class to represent a hotkey"""
     def __init__(self, hotkey_str):
         self.hotkey_str = hotkey_str
-
-class Action:
-    """Class to represent an action"""
-    def __init__(self, module_name, action):
-        self.module_name = module_name
-        self.action = action
 
 actions = {}
 ids = {}
 
 def add_hotkey_action(shortcut, action):
     """Add a hotkey action"""
+    if not callable(action):
+        raise TypeError(f"Action {action.name} is not callable")
+
     if shortcut.hotkey_str in actions and actions[shortcut.hotkey_str]:
         console.warning("%s shortcut is already registered",shortcut.hotkey_str)
 
@@ -35,9 +44,13 @@ def add_hotkey_action(shortcut, action):
             ids[shortcut.hotkey_str] = len(ids)
 
         try:
-            keyboard.add_hotkey(shortcut.hotkey_str, action.action())
-            console.info("%s shortcut registered",shortcut.hotkey_str)
-            return True
+            if callable(action.action):
+                keyboard.add_hotkey(shortcut.hotkey_str, action.action)
+                console.info("%s shortcut registered", shortcut.hotkey_str)
+                return True
+            else:
+                console.warning("Action for %s is not callable", shortcut.hotkey_str)
+                return False
         except ValueError as e:
             console.warning("Failed to add %s shortcut. Exception: %s", shortcut.hotkey_str, str(e))
             return False

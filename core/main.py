@@ -26,7 +26,9 @@ class Launcher(QtCore.QObject):
     def register_hotkey(self, hotkey_str):
         """Registra un atajo de teclado."""
         shortcut = Shortcut(hotkey_str)
-        action = Action("main", self.main_window.display())
+        action = Action("main", self.main_window.display)
+        if not callable(action.action):
+            console.error("Action is not callable: %s", action.action)
         if not add_hotkey_action(shortcut, action):
             console.warning("Failed to register hotkey %s", hotkey_str)
 

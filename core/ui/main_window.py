@@ -141,7 +141,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def execute_command(self):
         """Ejecuta el comando introducido."""
-        command,parameters = self.getCommand()
+        command,parameters = self.get_command()
         console.info("Command entered: %s %s",command, parameters)
         if command == "hide":
             self.launcher.hide_main_window()
