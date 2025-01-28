@@ -1,4 +1,5 @@
 import json
+import subprocess
 from PyQt5 import QtGui, QtSvg, QtCore, QtWidgets
 import sys
 import logging
@@ -15,12 +16,14 @@ else:
 logging.basicConfig(level=logging.INFO)
 console = logging.getLogger(__name__)
 
-svg_data = """
-<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="32" cy="32" r="32" fill="blue"/>
-    <text x="32" y="37" font-size="24" text-anchor="middle" fill="white">SVG</text>
-</svg>
-"""
+def launch_app(app,shell=False,detached=True):
+    try:
+        subprocess.Popen(app,shell=shell,creationflags=subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_PROCESS_GROUP if detached else 0)
+        return True
+    except Exception as e:
+        console.error(f"Error al ejecutar el comando: {e}")
+        return False
+
 def center_on_screen(widget):
     screen = QtWidgets.QApplication.primaryScreen()
     screen_geometry = screen.availableGeometry()
