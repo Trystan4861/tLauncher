@@ -1,0 +1,3 @@
+[MASTER]
+extension-pkg-allow-list=PyQt5
+max-line-length=150

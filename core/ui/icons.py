@@ -1,3 +1,4 @@
+"""Icons for the UI"""
 ICONS = {
     "openFolder": """
 <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
@@ -38,5 +39,6 @@ ICONS = {
 }
 
 def get_icon(name, fill_color="#fff", stroke_color="#515253"):
+    """Returns an SVG icon with the specified colors."""
     icon_template = ICONS.get(name, "")
     return icon_template.format(fill=fill_color, stroke=stroke_color)
