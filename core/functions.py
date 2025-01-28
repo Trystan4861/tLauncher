@@ -203,7 +203,7 @@ def normalize_json(data):
         return [normalize_json(i) for i in data]
     else:
         return data
-    
+
 def load_config(config_name="config.json", default_config=None):
     """
     Carga la configuración desde un archivo JSON.

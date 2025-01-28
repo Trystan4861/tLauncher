@@ -1,17 +1,24 @@
-from PyQt5 import QtWidgets, QtCore
-from .config_window import ConfigWindow
-from pywinauto import Application
+"""Módulo principal de la interfaz gráfica de usuario."""
+
 import sys
 import os
 import importlib.util
-import functions as f 
-from sizes import Sizes
+import functions as f
+
+from PyQt5 import QtWidgets, QtCore
+from pywinauto import Application
+
+try:
+    from sizes import Sizes
+except ImportError:
+    from core.ui.sizes import Sizes # type: ignore
 
 PROGRAM_NAME = "tLauncher"
 PLUGINS=[]
 
 console = f.console
 class TransparentLineEdit(QtWidgets.QLineEdit):
+    """Cuadro de texto transparente para introducir comandos."""
     keyPressed = QtCore.pyqtSignal(QtCore.QEvent)
 
     def __init__(self, parent=None):
@@ -19,11 +26,14 @@ class TransparentLineEdit(QtWidgets.QLineEdit):
         self.setObjectName("TransparentLineEdit")
         self.setStyleSheet("background: transparent; color: #ffffff; font-weight: bold;")
 
+# pylint: disable=invalid-name
     def keyPressEvent(self, event):
+        """Emite una señal cuando se presiona una tecla."""
         super().keyPressEvent(event)
         self.keyPressed.emit(event)
-
+# pylint: enable=invalid-name
 class PlaceholderLineEdit(QtWidgets.QLineEdit):
+    """Cuadro de texto de solo lectura para mostrar un placeholder."""
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setObjectName("PlaceholderLineEdit")
@@ -31,10 +41,12 @@ class PlaceholderLineEdit(QtWidgets.QLineEdit):
         self.setReadOnly(True)
         self.setFocusPolicy(QtCore.Qt.NoFocus)
 
-    def setPlaceholder(self, text):
+    def set_placeholder(self, text):
+        """Establece el texto del placeholder."""
         self.setText(text)
 
 class MainWindow(QtWidgets.QMainWindow):
+    """Ventana principal de la aplicación."""
     def __init__(self, launcher, get_base_path, hotkey_str):
         super().__init__()
         self.launcher = launcher
@@ -49,6 +61,7 @@ class MainWindow(QtWidgets.QMainWindow):
         f.center_on_screen(self)
 
     def load_plugins(self, plugins_path):
+        """Carga los plugins disponibles en la ruta especificada."""
         for plugin_name in os.listdir(plugins_path):
             plugin_dir = os.path.join(plugins_path, plugin_name)
             main_file = os.path.join(plugin_dir, "main.py")
@@ -59,6 +72,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 print(f"Loaded plugin: {plugin_name}")
 
     def create_widgets(self):
+        """Crea los widgets de la ventana principal."""
         central_widget = QtWidgets.QWidget()
         layout = QtWidgets.QVBoxLayout()
 
@@ -105,41 +119,41 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setCentralWidget(central_widget)
 
     def show_message(self, text):
+        """Muestra un mensaje en la franja horizontal."""
         if text:
             self.message_label.setText(text)
             self.message_frame.show()
         else:
             self.message_frame.hide()
-        self.setFixedHeight(self.getWindowHeight()) # Ajustar tamaño de la ventana
+        self.setFixedHeight(self.get_window_height()) # Ajustar tamaño de la ventana
 
-    def getWindowHeight(self):
+    def get_window_height(self):
+        """Obtiene la altura de la ventana."""
         height = Sizes.CommandInput.HEIGHT
         if self.is_message_visible():
             height += Sizes.Message.HEIGHT
-        #TODO: si hay elementos en el desplegable aumentar el tamaño por cada elemento
+        #2DO: si hay elementos en el desplegable aumentar el tamaño por cada elemento
         return height
 
-
     def is_message_visible(self):
+        """Indica si el mensaje está visible."""
         return self.message_frame.isVisible()
 
     def execute_command(self):
+        """Ejecuta el comando introducido."""
         command,parameters = self.getCommand()
-        console.info(f"Command entered: {command} {parameters}")
+        console.info("Command entered: %s %s",command, parameters)
         if command == "hide":
             self.launcher.hide_main_window()
         elif command == "exit":
             self.quit()
         else:
-            #TODO: Aquí iría la lógica para ejecutar el comando y mostrar el resultado
-            console.info(f"Executing: {command}")
+            #2DO: Aquí iría la lógica para ejecutar el comando y mostrar el resultado
+            console.info("Executing: %s ",command)
         self.command_input.clear()
 
-    def open_config(self):
-        self.config_window = ConfigWindow(self)
-        self.config_window.show()
-
     def display(self):
+        """Muestra la ventana principal."""
         f.center_on_screen(self)
         self.setWindowState(self.windowState() & ~QtCore.Qt.WindowMinimized | QtCore.Qt.WindowActive)
         self.show()
@@ -154,20 +168,23 @@ class MainWindow(QtWidgets.QMainWindow):
             Application().connect(title=PROGRAM_NAME).window().set_focus()
 
     def handle_key_press(self, event):
-        console.info(f"Key pressed: {event.text()} - {event.key()}")
+        """Maneja el evento de presionar una tecla."""
+        console.info("Key pressed: %s - %s" ,event.text(),event.key())
         if event.key() == QtCore.Qt.Key_Escape:
             self.launcher.hide_main_window()
         elif event.key() == QtCore.Qt.Key_Return or event.key() == QtCore.Qt.Key_Enter:
             self.execute_command()
         else:
-            #TODO: Aquí iría la lógica para mostrar el placeholder vitaminado
+            #2DO: Aquí iría la lógica para mostrar el placeholder vitaminado
             self.show_message(self.command_input.text())
             self.keyPressEvent(event)
 
-    def getCommand(self):
+    def get_command(self):
+        """Obtiene el comando introducido."""
         parts = self.command_input.text().strip().split(" ",1)
         return [parts[0].lower() or "", parts[1] if len(parts) > 1 else ""]
 
 
-    def quit(self):        
+    def quit(self):
+        """Cierra la aplicación."""
         QtWidgets.QApplication.instance().quit()

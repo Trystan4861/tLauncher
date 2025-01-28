@@ -1,3 +1,4 @@
+"""Módulo principal del plugin de ejemplo."""
 import json
 
 # JSON de ejemplo para el plugin
@@ -60,12 +61,15 @@ PLUGIN_INTERACT_TEMPLATE = {
 }
 
 def execute(command):
+    """Ejecuta un comando."""
     print(f"{command} from sample plugin!")
 
 def get_plugin_info():
+    """Obtiene la información del plugin."""
     return json.dumps(PLUGIN_INFO_TEMPLATE)
 
 def interact(feedback):
+    """Interactúa con el usuario."""
     response = PLUGIN_INTERACT_TEMPLATE.copy()
     response["interaction"]["message"] = f"Received feedback: {feedback}"
     return json.dumps(response)

@@ -1,12 +1,15 @@
+"""Módulo de gestión de plugins."""
 import os
 import importlib.util
 
 class PluginManager:
+    """Clase de gestión de plugins."""
     def __init__(self, plugins_path):
         self.plugins_path = plugins_path
         self.plugins = {}
 
     def load_plugins(self):
+        """Carga los plugins desde el directorio de plugins."""
         for plugin_name in os.listdir(self.plugins_path):
             plugin_dir = os.path.join(self.plugins_path, plugin_name)
             main_file = os.path.join(plugin_dir, "main.py")
@@ -20,7 +23,9 @@ class PluginManager:
                     print(f"Loaded plugin: {plugin_name} with info: {plugin_info}")
 
     def get_plugin_info(self, plugin_name):
+        """Obtiene la información de un plugin."""
         return self.plugins.get(plugin_name, None)
 
     def get_all_plugins_info(self):
+        """Obtiene la información de todos los plugins."""
         return self.plugins
