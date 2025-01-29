@@ -1,3 +1,4 @@
+
 # tLauncher
 
 tLauncher es una aplicación de escritorio liviana que permite ejecutar aplicaciones, buscar archivos y abrir direcciones en el navegador predeterminado usando alias. Las funcionalidades pueden ser extendidas mediante plugins desarrollados por terceros.
@@ -8,6 +9,8 @@ tLauncher es una aplicación de escritorio liviana que permite ejecutar aplicaci
 - Buscar archivos en el ordenador.
 - Abrir direcciones en el navegador predeterminado usando alias.
 - Extensible mediante plugins.
+
+![Alt](https://repobeats.axiom.co/api/embed/d004ea8805472efb98756a63da947d46f27c4864.svg "Repobeats analytics image")
 
 ## Instalación
 
