@@ -1,4 +1,4 @@
-"""Module to handle hotkeys and actions"""
+"""Módulo para manejar atajos de teclado y acciones"""
 import logging
 import keyboard
 
@@ -7,7 +7,7 @@ logging.basicConfig(level=logging.INFO)
 console = logging.getLogger(__name__)
 
 class Action:
-    """Class to represent an action"""
+    """Clase para representar una acción"""
     def __init__(self, name, action):
         self.name = name
         self.action = action
@@ -16,10 +16,10 @@ class Action:
         if callable(self.action):
             self.action()
         else:
-            raise TypeError(f"Action {self.name} is not callable")
+            raise TypeError(f"La acción {self.name} no es callable")
 
 class Shortcut:
-    """Class to represent a hotkey"""
+    """Clase para representar un atajo de teclado"""
     def __init__(self, hotkey_str):
         self.hotkey_str = hotkey_str
 
@@ -27,12 +27,12 @@ actions = {}
 ids = {}
 
 def add_hotkey_action(shortcut, action):
-    """Add a hotkey action"""
+    """Agregar una acción de atajo de teclado"""
     if not callable(action):
-        raise TypeError(f"Action {action.name} is not callable")
+        raise TypeError(f"La acción {action.name} no es callable")
 
     if shortcut.hotkey_str in actions and actions[shortcut.hotkey_str]:
-        console.warning("%s shortcut is already registered",shortcut.hotkey_str)
+        console.warning("El atajo %s ya está registrado", shortcut.hotkey_str)
 
     if shortcut.hotkey_str not in actions:
         actions[shortcut.hotkey_str] = []
@@ -46,34 +46,34 @@ def add_hotkey_action(shortcut, action):
         try:
             if callable(action.action):
                 keyboard.add_hotkey(shortcut.hotkey_str, action.action)
-                console.info("%s shortcut registered", shortcut.hotkey_str)
+                console.info("El atajo %s ha sido registrado", shortcut.hotkey_str)
                 return True
             else:
-                console.warning("Action for %s is not callable", shortcut.hotkey_str)
+                console.warning("La acción para %s no es callable", shortcut.hotkey_str)
                 return False
         except ValueError as e:
-            console.warning("Failed to add %s shortcut. Exception: %s", shortcut.hotkey_str, str(e))
+            console.warning("No se pudo agregar el atajo %s. Excepción: %s", shortcut.hotkey_str, str(e))
             return False
 
     return True
 
 def unregister_hotkeys_for_module(module_name):
-    """Unregister hotkeys for a module"""
+    """Desregistrar atajos de teclado para un módulo"""
     for hotkey_str, action_list in list(actions.items()):
         action_list[:] = [a for a in action_list if a.module_name != module_name]
 
         if not action_list:
             try:
                 keyboard.remove_hotkey(hotkey_str)
-                console.info("%s shortcut unregistered",hotkey_str)
+                console.info("El atajo %s ha sido desregistrado", hotkey_str)
             except ValueError as e:
-                console.warning("Failed to unregister %s shortcut. %s",hotkey_str, str(e))
+                console.warning("No se pudo desregistrar el atajo %s. %s", hotkey_str, str(e))
             del actions[hotkey_str]
 
 def populate_hotkey(shortcut):
-    """Populate hotkey"""
+    """Ejecutar la acción del atajo de teclado"""
     if actions:
         try:
             actions[shortcut.hotkey_str][0].action()
         except ValueError as ex:
-            console.error("Failed to execute hotkey's action. %s", str(ex))
+            console.error("No se pudo ejecutar la acción del atajo de teclado. %s", str(ex))
