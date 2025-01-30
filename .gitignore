@@ -126,3 +126,4 @@ dmypy.json
 core/.tlauncher.lock
 
 /.wakatime-project
+/config.json

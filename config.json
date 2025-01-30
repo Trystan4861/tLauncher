@@ -1,10 +1,10 @@
 {
     "hotkey": "ctrl+alt+w",
     "plugins": {
-        "sample_plugin": {
-            "name": "sample_plugin",
+        "add_plugin": {
+            "name": "add_plugin",
             "enabled": true,
-            "keyword": "say"
+            "keyword": "addplugin"
         },
         "alert_plugin": {
             "name": "alert_plugin",

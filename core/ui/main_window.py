@@ -134,7 +134,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if plugin_name:
             self.plugin_manager.execute_plugin_command(plugin_name, f"{command} {parameters}", parent=self)
         elif plugin_name is None:
-            self.show_message(f"Comando desconocido o plugin no activado/importado: {command}")
+            console.error("Comando desconocido o plugin no activado/importado: %s",command)
         elif command == "hide":
             self.launcher.hide_main_window()
         elif command == "exit":
