@@ -1,3 +1,16 @@
 {
-    "hotkey": "ctrl+alt+w"
+    "hotkey": "ctrl+alt+w",
+    "plugins": {
+        "sample_plugin": {
+            "name": "sample_plugin",
+            "enabled": true,
+            "keyword": "say"
+        },
+        "alert_plugin": {
+            "name": "alert_plugin",
+            "enabled": true,
+            "keyword": "alert"
+        }
+    }
+
 }

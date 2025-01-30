@@ -1,17 +1,16 @@
 """Módulo principal de la interfaz gráfica de usuario."""
 
 import sys
-import os
-import importlib.util
-import functions as f
-
 from PyQt5 import QtWidgets, QtCore
 from pywinauto import Application
+import functions as f
 
 try:
     from sizes import Sizes
+    from plugin_manager import PluginManager
 except ImportError:
     from core.ui.sizes import Sizes # type: ignore
+    from core.plugin_manager import PluginManager
 
 PROGRAM_NAME = "tLauncher"
 PLUGINS=[]
@@ -26,12 +25,10 @@ class TransparentLineEdit(QtWidgets.QLineEdit):
         self.setObjectName("TransparentLineEdit")
         self.setStyleSheet("background: transparent; color: #ffffff; font-weight: bold;")
 
-# pylint: disable=invalid-name
-    def keyPressEvent(self, event):
+    def keyPressEvent(self, event): # pylint: disable=invalid-name
         """Emite una señal cuando se presiona una tecla."""
         super().keyPressEvent(event)
         self.keyPressed.emit(event)
-# pylint: enable=invalid-name
 class PlaceholderLineEdit(QtWidgets.QLineEdit):
     """Cuadro de texto de solo lectura para mostrar un placeholder."""
     def __init__(self, parent=None):
@@ -51,25 +48,16 @@ class MainWindow(QtWidgets.QMainWindow):
         super().__init__()
         self.launcher = launcher
         self.hotkey_str = hotkey_str
+        self.config = f.load_config()
+        self.plugin_manager = PluginManager(get_base_path("plugins"), self.config)
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.Tool | QtCore.Qt.WindowStaysOnTopHint)
         self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
         self.setWindowTitle(PROGRAM_NAME)
         self.setGeometry(0, 0, Sizes.Window.WIDTH, Sizes.CommandInput.HEIGHT)
         f.apply_styles(self, get_base_path("resources/styles/main_window.qss"))
-        self.load_plugins(get_base_path("plugins/"))
+        self.plugin_manager.load_plugins()
         self.create_widgets()
         f.center_on_screen(self)
-
-    def load_plugins(self, plugins_path):
-        """Carga los plugins disponibles en la ruta especificada."""
-        for plugin_name in os.listdir(plugins_path):
-            plugin_dir = os.path.join(plugins_path, plugin_name)
-            main_file = os.path.join(plugin_dir, "main.py")
-            if os.path.isdir(plugin_dir) and os.path.isfile(main_file):
-                spec = importlib.util.spec_from_file_location(f"plugins.{plugin_name}.main", main_file)
-                module = importlib.util.module_from_spec(spec)
-                spec.loader.exec_module(module)
-                print(f"Loaded plugin: {plugin_name}")
 
     def create_widgets(self):
         """Crea los widgets de la ventana principal."""
@@ -141,16 +129,20 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def execute_command(self):
         """Ejecuta el comando introducido."""
-        command,parameters = self.get_command()
-        console.info("Command entered: %s %s",command, parameters)
-        if command == "hide":
+        command, parameters = self.get_command()
+        console.info("Command entered: %s %s", command, parameters)
+        plugin_name = self.plugin_manager.get_plugin_for_command(command)
+        if plugin_name:
+            self.plugin_manager.execute_plugin_command(plugin_name, f"{command} {parameters}", parent=self)
+        elif command == "hide":
             self.launcher.hide_main_window()
         elif command == "exit":
             self.quit()
         else:
             #2DO: Aquí iría la lógica para ejecutar el comando y mostrar el resultado
-            console.info("Executing: %s ",command)
+            console.info("Executing: %s ", command)
         self.command_input.clear()
+        self.show_message("")  # Vaciar show_message después de ejecutar un comando
 
     def display(self):
         """Muestra la ventana principal."""
@@ -169,7 +161,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def handle_key_press(self, event):
         """Maneja el evento de presionar una tecla."""
-        console.info("Key pressed: %s - %s" ,event.text(),event.key())
+        #console.info("Key pressed: %s - %s" ,event.text(),event.key())
         if event.key() == QtCore.Qt.Key_Escape:
             self.launcher.hide_main_window()
         elif event.key() == QtCore.Qt.Key_Return or event.key() == QtCore.Qt.Key_Enter:
@@ -183,7 +175,6 @@ class MainWindow(QtWidgets.QMainWindow):
         """Obtiene el comando introducido."""
         parts = self.command_input.text().strip().split(" ",1)
         return [parts[0].lower() or "", parts[1] if len(parts) > 1 else ""]
-
 
     def quit(self):
         """Cierra la aplicación."""
