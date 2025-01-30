@@ -2,7 +2,6 @@
 import sys
 from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtCore import QTimer
-from plugin_manager import PluginManager
 from ui.main_window import MainWindow
 from ui.tray_icon import TrayIcon
 import functions as f
@@ -14,8 +13,6 @@ class Launcher(QtCore.QObject):
     """Clase principal de la aplicación."""
     def __init__(self):
         super().__init__()
-        self.plugin_manager = PluginManager(f.get_base_path('plugins'))
-        self.plugin_manager.load_plugins()
         self.config = f.load_config()
         self.app = QtWidgets.QApplication(sys.argv)
         self.main_window = MainWindow(self, f.get_base_path, self.config["hotkey"])
