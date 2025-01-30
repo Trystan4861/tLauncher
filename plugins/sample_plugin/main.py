@@ -60,7 +60,7 @@ PLUGIN_INTERACT_TEMPLATE = {
     }
 }
 
-def execute(command):
+def execute(command, parent=None, **kwargs): # pylint: disable=unused-argument
     """Ejecuta un comando."""
     print(f"{command} from sample plugin!")
 
