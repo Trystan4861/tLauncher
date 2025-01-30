@@ -1,14 +1,13 @@
 """Módulo principal de la interfaz gráfica de usuario."""
-
 import sys
 from PyQt5 import QtWidgets, QtCore
 from pywinauto import Application
-import functions as f
-
 try:
+    import functions as f
     from sizes import Sizes
     from plugin_manager import PluginManager
 except ImportError:
+    from core import functions as f
     from core.ui.sizes import Sizes # type: ignore
     from core.plugin_manager import PluginManager
 
@@ -134,6 +133,8 @@ class MainWindow(QtWidgets.QMainWindow):
         plugin_name = self.plugin_manager.get_plugin_for_command(command)
         if plugin_name:
             self.plugin_manager.execute_plugin_command(plugin_name, f"{command} {parameters}", parent=self)
+        elif plugin_name is None:
+            self.show_message(f"Comando desconocido o plugin no activado/importado: {command}")
         elif command == "hide":
             self.launcher.hide_main_window()
         elif command == "exit":

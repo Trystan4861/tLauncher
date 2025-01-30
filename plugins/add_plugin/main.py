@@ -2,20 +2,35 @@
 import json
 import os
 import subprocess
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QPushButton, QLineEdit, QHBoxLayout
+from urllib.parse import urlparse
+import requests
+import yaml
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QPushButton, QLineEdit, QHBoxLayout, QMessageBox
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPainter, QBrush, QColor
 
-# JSON de ejemplo para el plugin
-PLUGIN_INFO_TEMPLATE = {
-    "plugin": {
-        "name": "addPlugin",
-        "version": "0.1",
-        "author": "@trystan4861",
-        "description": "Importa nuevos plugins desde una URL de Git.",
-        "default_keyword": "addplugin"
-    }
-}
+def load_plugin_info():
+    """Carga la información del plugin desde plugin.yaml."""
+    with open(os.path.join(os.path.dirname(__file__), "plugin.yaml"), "r", encoding="utf-8") as file:
+        return yaml.safe_load(file)
+
+PLUGIN_INFO_TEMPLATE = load_plugin_info()
+
+def verify_plugin_repository(url):
+    """Verifica si el repositorio contiene el archivo de configuración del plugin y si tiene los valores específicos."""
+    api_url = url.replace("github.com", "api.github.com/repos") + "/contents/plugin.yaml"
+    response = requests.get(api_url, timeout=10)
+    if response.status_code == 200:
+        content = response.json().get('content')
+        if content:
+            plugin_config = yaml.safe_load(content)
+            return plugin_config.get('author') == '@trystan4861' and plugin_config.get('project') == 'tLauncher'
+    return False
+
+def is_valid_url(url):
+    """Comprueba si una URL es válida y pertenece a github.com."""
+    parsed = urlparse(url)
+    return all([parsed.scheme, parsed.netloc]) and "github.com" in parsed.netloc
 
 class ImportDialog(QDialog):
     """Diálogo de importación de plugins."""
@@ -57,7 +72,7 @@ class ImportDialog(QDialog):
 
         layout = QVBoxLayout()
 
-        self.label = QLabel("Introduce la URL del repositorio Git:")
+        self.label = QLabel("Introduce la URL del repositorio Git (solo github.com):")
         self.label.setAlignment(Qt.AlignCenter)
         layout.addWidget(self.label)
 
@@ -98,6 +113,14 @@ class ImportDialog(QDialog):
             self.label.setText("La URL no puede estar vacía.")
             return
 
+        if not is_valid_url(url):
+            self.label.setText("La URL no es válida o no pertenece a github.com.")
+            return
+
+        if not verify_plugin_repository(url):
+            QMessageBox.warning(self, "Error", "El repositorio no contiene un archivo de configuración de plugin válido.")
+            return
+
         plugin_name = os.path.basename(url).replace(".git", "")
         plugins_path = os.path.join(os.path.dirname(__file__), "..", "..", "plugins")
         plugin_dir = os.path.join(plugins_path, plugin_name)
@@ -112,9 +135,9 @@ class ImportDialog(QDialog):
 
         try:
             subprocess.run(["git", "clone", url, plugin_dir], check=True)
-            self.label.setText("Plugin importado con éxito.")
+            QMessageBox.information(self, "Éxito", "El plugin ha sido importado correctamente.")
         except subprocess.CalledProcessError:
-            self.label.setText("Error al importar el plugin. Verifica la URL.")
+            QMessageBox.critical(self, "Error", "Hubo un error al clonar el repositorio.")
 
     def is_git_installed(self):
         """Comprueba si Git está instalado en el sistema."""

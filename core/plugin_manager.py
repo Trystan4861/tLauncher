@@ -55,7 +55,8 @@ class PluginManager:
         """Obtiene el nombre del plugin asociado a un comando."""
         for plugin_name, module in self.plugins.items():
             plugin_info = json.loads(module.get_plugin_info())
-            if command == self.config["plugins"].get(plugin_name, {}).get("keyword", plugin_info["plugin"]["default_keyword"]):
+            default_keyword = plugin_info.get("plugin", {}).get("default_keyword")
+            if command == self.config["plugins"].get(plugin_name, {}).get("keyword", default_keyword):
                 return plugin_name
         return None
 

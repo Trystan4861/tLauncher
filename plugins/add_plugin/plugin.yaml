@@ -1,0 +1,6 @@
+author: "@trystan4861"
+project: "tLauncher"
+name: "addPlugin"
+version: "0.1"
+description: "Importa nuevos plugins desde una URL de Github."
+default_keyword: "addplugin"

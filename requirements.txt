@@ -4,3 +4,5 @@ Pillow
 keyboard
 pynput
 pywinauto
+requests
+PyYAML
