@@ -60,7 +60,7 @@ def add_hotkey_action(shortcut, action):
 def unregister_hotkeys_for_module(module_name):
     """Desregistrar atajos de teclado para un módulo"""
     for hotkey_str, action_list in list(actions.items()):
-        action_list[:] = [a for a in action_list if a.module_name != module_name]
+        action_list[:] = [a for a in action_list if a.name != module_name]
 
         if not action_list:
             try:
