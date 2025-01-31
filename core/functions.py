@@ -228,14 +228,14 @@ def load_config(config_name="config.json", default_config=None):
             config = normalize_json(json.load(configfile))
     return config
 
-def notify(message, parent=None, with_button=True, timeout=None, min_width=300, min_height=150, font_size=16):
+def notify(message, parent=None, button_options=None, timeout=None, min_width=300, min_height=150, font_size=16):
     """
     Muestra una alerta usando el plugin alert_plugin si se encuentra en el sistema.
 
     Args:
         message (str): El mensaje a mostrar en la alerta.
         parent (QtWidgets.QWidget): El widget padre de la alerta.
-        with_button (bool): Si la alerta debe tener un botón de aceptar.
+        button_options (dict): Opciones para los botones de aceptar y cancelar.
         timeout (int): El tiempo en milisegundos que la alerta debe mostrarse si no tiene botón.
         min_width (int): El ancho mínimo de la alerta.
         min_height (int): La altura mínima de la alerta.
@@ -248,6 +248,7 @@ def notify(message, parent=None, with_button=True, timeout=None, min_width=300, 
         spec = importlib.util.spec_from_file_location(f"plugins.{plugin_name}.main", main_file)
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        module.show_alert(message, parent, with_button, timeout, min_width, min_height, font_size)
+        return module.show_alert(message, parent, button_options, timeout, min_width, min_height, font_size)
     else:
         console.warning("El plugin alert_plugin no se encuentra en el sistema.")
+        return None

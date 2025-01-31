@@ -39,7 +39,7 @@ class PluginManager:
                 error_message += f"Faltan en el directorio: {', '.join(missing_in_directory)}\n"
             if missing_in_config:
                 error_message += f"Faltan en el config: {', '.join(missing_in_config)}"
-            f.notify(error_message, parent=parent, with_button=True)
+            f.notify(error_message, parent=parent, button_options={"accept": True})
 
         self.plugins = directory_plugins
 

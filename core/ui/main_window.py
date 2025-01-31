@@ -133,15 +133,13 @@ class MainWindow(QtWidgets.QMainWindow):
         plugin_name = self.plugin_manager.get_plugin_for_command(command)
         if plugin_name:
             self.plugin_manager.execute_plugin_command(plugin_name, f"{command} {parameters}", parent=self)
-        elif plugin_name is None:
-            console.error("Comando desconocido o plugin no activado/importado: %s",command)
         elif command == "hide":
+            console.info("pulsado %s",f.notify("Ocultando ventana principal...", parent=self, timeout=2000))
             self.launcher.hide_main_window()
         elif command == "exit":
             self.quit()
-        else:
-            #2DO: Aquí iría la lógica para ejecutar el comando y mostrar el resultado
-            console.info("Executing: %s ", command)
+        elif plugin_name is None:
+            console.error("Comando desconocido o plugin no activado/importado: %s", command)
         self.command_input.clear()
         self.show_message("")  # Vaciar show_message después de ejecutar un comando
 
