@@ -22,7 +22,7 @@ class AlertDialog(QDialog):
         self.setAttribute(Qt.WA_TranslucentBackground)
 
         layout = QVBoxLayout()
-        
+
         label = QLabel(message)
         label.setAlignment(Qt.AlignCenter)  # Centrar el texto horizontalmente
         font = QFont()
