@@ -6,40 +6,14 @@ try:
     import functions as f
     from sizes import Sizes
     from plugin_manager import PluginManager
+    from config import PROGRAM_NAME, console
+    from ui.widgets import TransparentLineEdit, PlaceholderLineEdit
 except ImportError:
     from core import functions as f
     from core.ui.sizes import Sizes # type: ignore
     from core.plugin_manager import PluginManager
-
-PROGRAM_NAME = "tLauncher"
-PLUGINS=[]
-
-console = f.console
-class TransparentLineEdit(QtWidgets.QLineEdit):
-    """Cuadro de texto transparente para introducir comandos."""
-    keyPressed = QtCore.pyqtSignal(QtCore.QEvent)
-
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.setObjectName("TransparentLineEdit")
-        self.setStyleSheet("background: transparent; color: #ffffff; font-weight: bold;")
-
-    def keyPressEvent(self, event): # pylint: disable=invalid-name
-        """Emite una señal cuando se presiona una tecla."""
-        super().keyPressEvent(event)
-        self.keyPressed.emit(event)
-class PlaceholderLineEdit(QtWidgets.QLineEdit):
-    """Cuadro de texto de solo lectura para mostrar un placeholder."""
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.setObjectName("PlaceholderLineEdit")
-        self.setStyleSheet("background: #202020; color: #d0e0e0;")
-        self.setReadOnly(True)
-        self.setFocusPolicy(QtCore.Qt.NoFocus)
-
-    def set_placeholder(self, text):
-        """Establece el texto del placeholder."""
-        self.setText(text)
+    from core.config import PROGRAM_NAME, console
+    from core.ui.widgets import TransparentLineEdit, PlaceholderLineEdit
 
 class MainWindow(QtWidgets.QMainWindow):
     """Ventana principal de la aplicación."""
@@ -134,9 +108,9 @@ class MainWindow(QtWidgets.QMainWindow):
         if plugin_name:
             self.plugin_manager.execute_plugin_command(plugin_name, f"{command} {parameters}", parent=self)
         elif command == "hide":
-            console.info("pulsado %s",f.notify("Ocultando ventana principal...", parent=self, timeout=2000))
             self.launcher.hide_main_window()
         elif command == "exit":
+            self.launcher.hide_main_window()
             self.quit()
         elif plugin_name is None:
             console.error("Comando desconocido o plugin no activado/importado: %s", command)

@@ -1,11 +1,15 @@
 """ Módulo principal de la aplicación. """
 import sys
-from PyQt5 import QtWidgets, QtCore
+from PyQt5 import QtCore
 from PyQt5.QtCore import QTimer
 from ui.main_window import MainWindow
 from ui.tray_icon import TrayIcon
 import functions as f
 from hook import add_hotkey_action, Shortcut, Action
+try:
+    from initialization import initialize_app, connect_pywinauto
+except ImportError:
+    from core.initialization import initialize_app, connect_pywinauto
 
 console = f.console
 
@@ -14,20 +18,19 @@ class Launcher(QtCore.QObject):
     def __init__(self):
         super().__init__()
         self.config = f.load_config()
-        self.app = QtWidgets.QApplication(sys.argv)
+        self.app = initialize_app()
         self.main_window = MainWindow(self, f.get_base_path, self.config["hotkey"])
         self.tray_icon = TrayIcon(self.main_window, f.get_base_path)
         self.register_hotkey(self.config["hotkey"])
-        self.monitor_signal_file()
 
     def register_hotkey(self, hotkey_str):
         """Registra un atajo de teclado."""
         shortcut = Shortcut(hotkey_str)
         action = Action("main", self.main_window.display)
         if not callable(action.action):
-            console.error("Action is not callable: %s", action.action)
+            console.error("La acción acción %s asociada al atajo %s no puede ser llamada", action.action, shortcut)
         if not add_hotkey_action(shortcut, action):
-            console.warning("Failed to register hotkey %s", hotkey_str)
+            console.warning("Fallo al registrar el atajo %s", hotkey_str)
 
     @QtCore.pyqtSlot()
     def monitor_signal_file(self):
@@ -45,6 +48,7 @@ class Launcher(QtCore.QObject):
     def run(self):
         """Ejecuta la aplicación."""
         self.main_window.display()
+        connect_pywinauto()
         sys.exit(self.app.exec_())
 
 if __name__ == "__main__":
@@ -52,7 +56,6 @@ if __name__ == "__main__":
     lock_file = open(lock_file_path, "w", encoding="utf-8")
 
     if f.is_already_running(lock_file):
-        console.info("La aplicación ya está en ejecución.")
         f.create_signal_file(f.get_base_path(".tlauncher_signal"))
         sys.exit(0)
 
