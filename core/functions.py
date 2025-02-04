@@ -124,6 +124,21 @@ def is_already_running(lock_file):
         return False
     except (IOError, OSError):
         return True
+def local_join(elements):
+    """
+    Enumera los elementos de una lista.
+
+    Args:
+        elemts (list): La lista de elementos a enumerar.
+
+    Returns:
+        list: La lista de elementos enumerados.
+    """
+    if len(elements) > 1:
+        my_str = ', '.join(elements[:-1]) + ' y ' + elements[-1]
+    else:
+        my_str = elements[0]
+    return my_str
 
 def create_signal_file(signal_file_path):
     """
@@ -252,3 +267,11 @@ def notify(message, parent=None, button_options=None, timeout=None, min_width=30
     else:
         console.warning("El plugin alert_plugin no se encuentra en el sistema.")
         return None
+
+def save_json(filepath, data):
+
+    """Guarda un diccionario en un archivo JSON."""
+
+    with open(filepath, 'w', encoding='utf-8') as f:
+
+        json.dump(data, f, ensure_ascii=False, indent=4)
