@@ -128,3 +128,4 @@ core/.tlauncher.lock
 /.wakatime-project
 /config.json
 test_*.py
+/config.json
