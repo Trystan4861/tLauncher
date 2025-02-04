@@ -36,9 +36,34 @@ class PluginManager:
         if missing_in_directory or missing_in_config:
             error_message = "Discrepancias encontradas en los plugins:\n"
             if missing_in_directory:
-                error_message += f"Faltan en el directorio: {', '.join(missing_in_directory)}\n"
+                #modificar el mensaje de error para que si hay más de un elemento en missing_in_directory,
+                # todos estén separados por comas excepto el penúltimo y el último que estarán separados por una "y"
+                if len(missing_in_directory) > 1:
+                    missing_str = f.local_join(missing_in_directory)
+                else:
+                    missing_str = missing_in_directory[0]
+                error_message += f"Se ha{'n' if len(missing_in_directory) > 1 else ''} eliminado: {missing_str}\n"
+
+                #eliminar plugins faltantes en el directorio del config
+                for plugin in missing_in_directory:
+                    del config_plugins[plugin]
+                self.config["plugins"] = config_plugins
+                f.save_json("config.json", self.config)
+
             if missing_in_config:
-                error_message += f"Faltan en el config: {', '.join(missing_in_config)}"
+                #añadir plugins faltantes en el directorio al config
+                for plugin in missing_in_config:
+                    plugin_info = json.loads(directory_plugins[plugin].get_plugin_info())
+                    config_plugins[plugin] = {"name":plugin_info["name"], "enabled":True, "keyword":plugin_info["default_keyword"]}
+                self.config["plugins"] = config_plugins
+                f.save_json("config.json", self.config)
+
+                if len(missing_in_config) > 1:
+                    missing_str = f.local_join(missing_in_config)
+                else:
+                    missing_str = missing_in_config[0]
+                error_message += f"Se ha{'n' if len(missing_in_config) > 1 else ''} agregado: {missing_str}\n"
+
             f.notify(error_message, parent=parent, button_options={"accept": True})
 
         self.plugins = directory_plugins

@@ -1,6 +1,6 @@
 author: "@trystan4861"
 project: "tLauncher"
-name: "AlertPlugin"
+name: "alertPlugin"
 version: "0.1"
 description: "Muestra alertas y notificaciones."
 default_keyword: "alert"
