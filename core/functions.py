@@ -232,7 +232,7 @@ def load_config(config_name="config.json", default_config=None):
         dict: La configuración cargada.
     """
     if default_config is None:
-        default_config = {'hotkey': 'ctr+alt+w', 'plugins': {}} # Configuración por defecto
+        default_config = {'hotkey': 'ctrl+alt+w', 'plugins': {}} # Configuración por defecto
     config_path = get_base_path(config_name)
     if not path_exists(config_path):
         config = default_config
