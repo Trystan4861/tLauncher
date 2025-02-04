@@ -1,0 +1,4 @@
+google=https://www.google.com
+wtr=https://www.weather.com
+web=https://www.example.com
+win=https://www.microsoft.com 
