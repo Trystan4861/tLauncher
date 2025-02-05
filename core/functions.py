@@ -243,6 +243,21 @@ def load_config(config_name="config.json", default_config=None):
             config = normalize_json(json.load(configfile))
     return config
 
+def requeriments_check(requirements_file):
+    """check if all the requirements are satisfied"""
+    with open(requirements_file, 'r', encoding="utf-8") as file:
+        dependencies = file.readlines()
+
+    for dependency in dependencies:
+        dependency = dependency.strip()
+        try:
+            importlib.import_module(dependency)
+        except ImportError:
+            print(f"Dependencia no satisfecha: {dependency}.")
+            return False
+    return True
+
+
 def notify(message, parent=None, button_options=None, timeout=None, min_width=300, min_height=150, font_size=16):
     """
     Muestra una alerta usando el plugin alert_plugin si se encuentra en el sistema.
