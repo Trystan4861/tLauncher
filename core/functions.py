@@ -6,6 +6,7 @@ import logging
 import os
 import platform
 import importlib.util
+import yaml
 
 from PyQt5 import QtGui, QtSvg, QtCore, QtWidgets
 
@@ -243,20 +244,19 @@ def load_config(config_name="config.json", default_config=None):
             config = normalize_json(json.load(configfile))
     return config
 
-def requeriments_check(requirements_file):
-    """check if all the requirements are satisfied"""
-    with open(requirements_file, 'r', encoding="utf-8") as file:
-        dependencies = file.readlines()
+def requeriments_check(plugin_yaml):
+    """Verifica si todas las dependencias están satisfechas."""
+    with open(plugin_yaml, 'r', encoding="utf-8") as file:
+        plugin_info = yaml.safe_load(file)
+        dependencies = plugin_info.get('dependencies', [])
 
     for dependency in dependencies:
-        dependency = dependency.strip()
         try:
             importlib.import_module(dependency)
         except ImportError:
             print(f"Dependencia no satisfecha: {dependency}.")
             return False
     return True
-
 
 def notify(message, parent=None, button_options=None, timeout=None, min_width=300, min_height=150, font_size=16):
     """

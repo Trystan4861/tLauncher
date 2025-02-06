@@ -4,3 +4,7 @@ name: "alertPlugin"
 version: "0.1"
 description: "Muestra alertas y notificaciones."
 default_keyword: "alert"
+dependencies:
+  - requests
+  - pyyaml
+  - PyQt5

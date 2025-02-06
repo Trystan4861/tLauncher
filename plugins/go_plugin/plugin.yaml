@@ -3,4 +3,8 @@ project: "tLauncher"
 name: "goPlugin"
 version: "0.1"
 description: "Gestiona y abre URLs mediante alias personalizados"
-default_keyword: "go" 
+default_keyword: "go"
+dependencies:
+  - requests
+  - pyyaml
+  - PyQt5
